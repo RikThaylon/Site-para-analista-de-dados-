@@ -1,0 +1,3294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DataPath · Trilha Analista de Dados</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+:root {
+  --bg: #070b14;
+  --bg2: #0d1321;
+  --bg3: #111827;
+  --bg4: #1a2234;
+  --border: #1e2d47;
+  --accent: #00e5ff;
+  --accent2: #7c3aed;
+  --accent3: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --muted2: #94a3b8;
+  --card-radius: 12px;
+  --font-main: 'Syne', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-main);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent2)}
+a{color:var(--accent);text-decoration:none}
+button{cursor:pointer;font-family:var(--font-main)}
+code,pre{font-family:var(--font-mono)}
+
+/* ─── LAYOUT ─── */
+#app{display:flex;height:100vh;overflow:hidden}
+#sidebar{
+  width:280px;min-width:280px;background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  transition:transform .3s ease;z-index:100;overflow:hidden
+}
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+
+/* ─── SIDEBAR ─── */
+.sidebar-header{
+  padding:20px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,#0d1321,#111827)
+}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.logo-icon{
+  width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0
+}
+.logo-text{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.logo-text span{color:var(--accent)}
+.xp-bar-wrap{margin-top:4px}
+.xp-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+.xp-bar{background:var(--border);border-radius:99px;height:6px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s ease}
+
+.search-wrap{padding:12px 20px;border-bottom:1px solid var(--border)}
+.search-input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;
+  font-family:var(--font-main);outline:none;transition:border-color .2s
+}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--muted)}
+
+#nav{flex:1;overflow-y:auto;padding:12px 10px}
+.module-nav-item{margin-bottom:4px}
+.module-nav-btn{
+  width:100%;background:none;border:none;padding:10px 12px;
+  border-radius:8px;display:flex;align-items:center;gap:10px;
+  color:var(--muted2);font-size:13px;font-weight:600;text-align:left;
+  transition:all .2s;cursor:pointer
+}
+.module-nav-btn:hover{background:var(--bg3);color:var(--text)}
+.module-nav-btn.active{background:var(--bg4);color:var(--accent);border-left:3px solid var(--accent)}
+.module-nav-btn .mod-icon{font-size:16px;flex-shrink:0}
+.module-nav-btn .mod-progress{
+  margin-left:auto;font-size:10px;background:var(--bg);
+  padding:2px 6px;border-radius:99px;color:var(--muted);font-family:var(--font-mono)
+}
+.module-nav-btn.complete .mod-progress{background:var(--green);color:#fff}
+.lessons-nav{padding:0 0 4px 28px;display:none}
+.lessons-nav.open{display:block}
+.lesson-nav-btn{
+  width:100%;background:none;border:none;padding:6px 10px;
+  border-radius:6px;text-align:left;font-size:12px;color:var(--muted);
+  transition:all .2s;cursor:pointer;display:flex;align-items:center;gap:6px
+}
+.lesson-nav-btn:hover{color:var(--text)}
+.lesson-nav-btn.active{color:var(--accent)}
+.lesson-nav-btn.done::before{content:'✓ ';color:var(--green)}
+
+/* ─── TOPBAR ─── */
+#topbar{
+  padding:16px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;background:var(--bg2);
+  position:sticky;top:0;z-index:50;flex-shrink:0
+}
+#menu-btn{
+  display:none;background:none;border:none;color:var(--text);
+  font-size:20px;padding:4px;line-height:1
+}
+.breadcrumb{font-size:13px;color:var(--muted);flex:1}
+.breadcrumb strong{color:var(--text)}
+.stats-row{display:flex;align-items:center;gap:12px}
+.stat-chip{
+  display:flex;align-items:center;gap:5px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:99px;padding:4px 10px;font-size:12px;
+  font-family:var(--font-mono)
+}
+.stat-chip .val{color:var(--accent);font-weight:700}
+
+/* ─── CONTENT AREA ─── */
+#content-area{flex:1;padding:32px 32px 80px}
+
+/* ─── HOME DASHBOARD ─── */
+.home-header{margin-bottom:36px}
+.home-title{font-size:36px;font-weight:800;line-height:1.2;margin-bottom:8px}
+.home-title span{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+.home-subtitle{color:var(--muted2);font-size:16px}
+.modules-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px;margin-bottom:36px
+}
+.module-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:24px;
+  transition:all .25s;cursor:pointer;position:relative;overflow:hidden
+}
+.module-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--module-color,var(--accent)),transparent)
+}
+.module-card:hover{border-color:var(--module-color,var(--accent));transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,229,255,.08)}
+.module-card-icon{font-size:28px;margin-bottom:12px}
+.module-card-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.module-card-desc{font-size:13px;color:var(--muted2);margin-bottom:16px;line-height:1.6}
+.module-card-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.level-badge{
+  background:var(--bg3);border:1px solid var(--border);
+  padding:2px 8px;border-radius:99px;font-family:var(--font-mono)
+}
+.module-card-progress{margin-top:14px}
+.mini-bar{background:var(--border);border-radius:99px;height:4px;overflow:hidden}
+.mini-fill{height:100%;background:var(--module-color,var(--accent));border-radius:99px;transition:width .5s}
+.progress-pct{font-size:11px;color:var(--muted);margin-top:4px;text-align:right;font-family:var(--font-mono)}
+
+/* ─── LESSON VIEW ─── */
+.lesson-header{margin-bottom:28px}
+.module-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);
+  padding:4px 12px;border-radius:99px;font-size:12px;
+  color:var(--muted2);margin-bottom:12px
+}
+.lesson-title{font-size:28px;font-weight:800;line-height:1.3;margin-bottom:8px}
+.lesson-meta{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+
+.lesson-body{max-width:800px}
+.lesson-section{margin-bottom:32px}
+.section-title{
+  font-size:18px;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;color:var(--accent)
+}
+.section-title::before{
+  content:'';width:4px;height:20px;background:var(--accent);border-radius:99px
+}
+.lesson-body p{
+  font-size:15px;line-height:1.8;color:var(--muted2);margin-bottom:14px
+}
+.lesson-body strong{color:var(--text)}
+.lesson-body ul,ol{
+  padding-left:20px;margin-bottom:14px
+}
+.lesson-body li{
+  font-size:15px;line-height:1.8;color:var(--muted2);margin-bottom:4px
+}
+
+.info-box{
+  background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);
+  border-radius:10px;padding:16px 18px;margin-bottom:20px;
+  font-size:14px;color:var(--text);line-height:1.7
+}
+.info-box.warning{background:rgba(245,158,11,.05);border-color:rgba(245,158,11,.25);color:var(--accent3)}
+.info-box.success{background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.25);color:var(--green)}
+.info-box strong{display:block;margin-bottom:4px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;opacity:.7}
+
+.code-block{
+  background:#1a1f2e;border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;margin-bottom:20px
+}
+.code-header{
+  padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;font-size:12px
+}
+.code-lang{color:var(--accent);font-family:var(--font-mono);font-weight:700}
+.copy-btn{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  padding:3px 10px;border-radius:5px;font-size:11px;transition:all .2s
+}
+.copy-btn:hover{background:var(--bg4);color:var(--text)}
+.code-block pre{margin:0 !important;border-radius:0 !important;background:transparent !important}
+.code-block pre code{padding:16px !important;font-size:13px !important;line-height:1.6 !important}
+
+/* ─── EXERCISES ─── */
+.exercises-section{margin-top:40px;border-top:1px solid var(--border);padding-top:32px}
+.ex-header{font-size:20px;font-weight:800;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.ex-header::after{
+  content:'Exercícios';font-size:11px;background:var(--accent2);
+  color:#fff;padding:2px 8px;border-radius:99px;font-weight:600
+}
+.exercise-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:24px;margin-bottom:16px
+}
+.ex-num{font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.ex-question{font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.6;color:var(--text)}
+.ex-code{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:12px 16px;margin-bottom:18px;
+  font-size:13px;font-family:var(--font-mono);color:var(--muted2);
+  overflow-x:auto;line-height:1.6
+}
+.options-grid{display:flex;flex-direction:column;gap:8px}
+.option-btn{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:12px 16px;text-align:left;
+  color:var(--muted2);font-size:14px;transition:all .2s;
+  display:flex;align-items:flex-start;gap:10px
+}
+.option-btn .opt-letter{
+  width:24px;height:24px;border-radius:50%;background:var(--bg);
+  border:1px solid var(--border);flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:12px;
+  font-family:var(--font-mono);font-weight:700;margin-top:-1px
+}
+.option-btn:hover:not(:disabled){background:var(--bg4);border-color:var(--accent);color:var(--text)}
+.option-btn.correct{background:rgba(16,185,129,.1);border-color:var(--green);color:var(--green)}
+.option-btn.incorrect{background:rgba(239,68,68,.1);border-color:var(--red);color:var(--red)}
+.option-btn:disabled{cursor:not-allowed}
+.ex-feedback{
+  margin-top:14px;padding:14px 16px;border-radius:8px;font-size:14px;
+  line-height:1.6;display:none
+}
+.ex-feedback.show{display:block}
+.ex-feedback.correct-fb{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:var(--green)}
+.ex-feedback.incorrect-fb{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:var(--muted2)}
+.ex-feedback.incorrect-fb .fb-title{color:var(--red)}
+.fb-title{font-weight:700;margin-bottom:4px}
+
+/* ─── NAVIGATION BUTTONS ─── */
+.lesson-nav-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:48px;padding-top:24px;border-top:1px solid var(--border);
+  gap:12px
+}
+.nav-btn{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:12px 20px;color:var(--text);
+  font-size:14px;font-family:var(--font-main);font-weight:600;
+  transition:all .2s;display:flex;align-items:center;gap:8px
+}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn.primary{background:linear-gradient(135deg,var(--accent2),#5b21b6);border:none;color:#fff}
+.nav-btn.primary:hover{filter:brightness(1.15)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ─── SQL PLAYGROUND ─── */
+.sql-playground{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--card-radius);overflow:hidden;margin-bottom:20px
+}
+.sql-tabs{
+  display:flex;border-bottom:1px solid var(--border);background:var(--bg3)
+}
+.sql-tab{
+  padding:10px 20px;font-size:13px;font-weight:600;background:none;border:none;
+  color:var(--muted);transition:all .2s;cursor:pointer;border-bottom:2px solid transparent
+}
+.sql-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.sql-tab-panel{display:none;padding:16px}
+.sql-tab-panel.active{display:block}
+.sql-editor{
+  width:100%;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:14px;font-family:var(--font-mono);font-size:13px;
+  color:var(--text);resize:vertical;min-height:100px;line-height:1.6;
+  outline:none;transition:border-color .2s
+}
+.sql-editor:focus{border-color:var(--accent)}
+.sql-run-btn{
+  margin-top:10px;background:linear-gradient(135deg,var(--accent2),#5b21b6);
+  border:none;color:#fff;padding:10px 24px;border-radius:8px;
+  font-size:14px;font-weight:700;font-family:var(--font-main);transition:all .2s
+}
+.sql-run-btn:hover{filter:brightness(1.15)}
+.sql-result{
+  margin-top:14px;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;overflow-x:auto;font-size:12px
+}
+.sql-result table{width:100%;border-collapse:collapse}
+.sql-result th{
+  background:var(--bg3);padding:8px 14px;text-align:left;
+  border-bottom:1px solid var(--border);color:var(--accent);
+  font-family:var(--font-mono);font-size:11px;white-space:nowrap
+}
+.sql-result td{
+  padding:8px 14px;border-bottom:1px solid var(--border);
+  color:var(--muted2);font-family:var(--font-mono);white-space:nowrap
+}
+.sql-result tr:last-child td{border-bottom:none}
+.sql-result tr:hover td{background:var(--bg2)}
+.sql-error{color:var(--red);padding:12px;font-family:var(--font-mono);font-size:13px}
+.sql-success-msg{color:var(--green);padding:12px;font-family:var(--font-mono);font-size:13px}
+
+/* ─── PROGRESS PAGE ─── */
+.progress-page{padding:32px}
+.big-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:32px}
+.big-stat{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:20px;text-align:center
+}
+.big-stat .val{font-size:32px;font-weight:800;color:var(--accent);display:block;font-family:var(--font-mono)}
+.big-stat .lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.module-progress-list{display:flex;flex-direction:column;gap:12px}
+.module-prog-item{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:16px 20px
+}
+.module-prog-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.module-prog-icon{font-size:20px}
+.module-prog-title{font-size:14px;font-weight:700;flex:1}
+.module-prog-pct{font-size:13px;font-family:var(--font-mono);color:var(--accent);font-weight:700}
+.prog-bar-full{background:var(--border);height:6px;border-radius:99px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:99px;transition:width .8s ease}
+
+/* ─── CHEATSHEET ─── */
+.cheatsheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.cs-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:20px
+}
+.cs-title{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--accent);
+  display:flex;align-items:center;gap:8px}
+.cs-table{width:100%;border-collapse:collapse;font-size:12px}
+.cs-table td{
+  padding:6px 10px;border-bottom:1px solid var(--border);
+  font-family:var(--font-mono);color:var(--muted2);vertical-align:top
+}
+.cs-table td:first-child{color:var(--text);font-weight:700;white-space:nowrap}
+.cs-table tr:last-child td{border-bottom:none}
+
+/* ─── MOBILE ─── */
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99}
+@media(max-width:768px){
+  #menu-btn{display:flex}
+  #sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #sidebar-overlay.show{display:block}
+  #content-area{padding:20px 16px 80px}
+  .home-title{font-size:26px}
+  .modules-grid{grid-template-columns:1fr}
+  .lesson-title{font-size:22px}
+  .stats-row{display:none}
+  .lesson-nav-row{flex-direction:column}
+  .nav-btn{width:100%;justify-content:center}
+  .cheatsheet-grid{grid-template-columns:1fr}
+}
+
+/* ─── LOADER ─── */
+#sql-loader{
+  display:none;text-align:center;padding:20px;
+  color:var(--muted);font-size:13px;font-family:var(--font-mono)
+}
+.loading-dots::after{
+  content:'.';animation:dots 1.5s infinite;font-size:20px
+}
+@keyframes dots{0%,100%{content:'.'}33%{content:'..'}66%{content:'...'}}
+
+/* ─── COMPLETION BADGE ─── */
+.completion-banner{
+  background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(0,229,255,.05));
+  border:1px solid rgba(16,185,129,.3);border-radius:var(--card-radius);
+  padding:20px;text-align:center;margin-bottom:24px;display:none
+}
+.completion-banner.show{display:block}
+.completion-banner h3{color:var(--green);font-size:18px;margin-bottom:4px}
+.completion-banner p{color:var(--muted2);font-size:14px}
+
+/* ─── FLOATING TOC ─── */
+.toc-wrap{
+  position:sticky;top:20px;float:right;width:200px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:14px;margin-left:24px;margin-bottom:24px;
+  font-size:12px
+}
+.toc-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.toc-item{
+  padding:5px 0;border-bottom:1px solid var(--border);
+  color:var(--muted2);cursor:pointer;transition:color .15s
+}
+.toc-item:last-child{border:none}
+.toc-item:hover{color:var(--accent)}
+@media(max-width:1100px){.toc-wrap{display:none}}
+
+/* ─── QUIZ SCORE ─── */
+.quiz-score-card{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--border);border-radius:var(--card-radius);
+  padding:24px;text-align:center;margin-top:24px
+}
+.quiz-score-num{font-size:48px;font-weight:800;color:var(--accent);font-family:var(--font-mono)}
+.quiz-score-label{color:var(--muted2);font-size:14px;margin-top:4px}
+.quiz-score-stars{font-size:28px;margin:8px 0}
+
+/* ─── TAGS ─── */
+.tag{
+  display:inline-block;background:var(--bg3);border:1px solid var(--border);
+  border-radius:99px;padding:2px 8px;font-size:11px;color:var(--muted);
+  margin:2px;font-family:var(--font-mono)
+}
+.tag.skill{border-color:var(--accent2);color:var(--accent2)}
+.skills-gained{margin-top:20px;padding:14px;background:var(--bg3);border-radius:10px}
+.skills-gained h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR OVERLAY -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">📊</div>
+      <div class="logo-text">Data<span>Path</span></div>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-label">
+        <span id="xp-level">Nível 1</span>
+        <span id="xp-val">0 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" id="search-input" placeholder="🔍  Buscar módulo ou lição..." oninput="handleSearch(this.value)">
+  </div>
+  <div id="nav"></div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+  <div id="topbar">
+    <button id="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="breadcrumb" id="breadcrumb">🏠 Início</div>
+    <div class="stats-row">
+      <div class="stat-chip">🔥 <span class="val" id="streak-val">0</span> dias</div>
+      <div class="stat-chip">✅ <span class="val" id="done-val">0</span> lições</div>
+      <div class="stat-chip">⭐ <span class="val" id="xp-stat">0</span> XP</div>
+    </div>
+  </div>
+  <div id="content-area"></div>
+</div>
+
+</div>
+<script>
+// ═══════════════════════════════════════════════════════
+//  CURRICULUM DATA
+// ═══════════════════════════════════════════════════════
+const CURRICULUM = [
+{
+  id:'m1',title:'Lógica de Programação',icon:'🧠',level:'Iniciante',duration:'~6h',
+  color:'#10b981',
+  description:'Fundamentos do pensamento computacional, algoritmos e estruturas básicas de controle.',
+  skills:['Algoritmos','Fluxogramas','Lógica Booleana','Pseudocódigo'],
+  lessons:[
+    {
+      id:'m1l1',title:'O que é programação e como pensar como programador',
+      theory:`
+        <p>Programação é a arte de dar instruções precisas para um computador resolver problemas. Antes de escrever qualquer código, você precisa desenvolver o <strong>pensamento computacional</strong> — a capacidade de decompor problemas complexos em passos menores e lógicos.</p>
+
+        <div class="info-box"><strong>💡 Conceito</strong>Um <strong>algoritmo</strong> é uma sequência finita de instruções bem definidas para resolver um problema. Pense na receita de um bolo: ingredientes (inputs), etapas (processamento), bolo pronto (output).</div>
+
+        <p>Os 4 pilares do pensamento computacional são:</p>
+        <ul>
+          <li><strong>Decomposição:</strong> dividir o problema em partes menores</li>
+          <li><strong>Reconhecimento de padrões:</strong> identificar similaridades</li>
+          <li><strong>Abstração:</strong> focar no que é essencial, ignorar detalhes</li>
+          <li><strong>Algoritmos:</strong> criar solução passo a passo</li>
+        </ul>
+
+        <p>Como analista de dados, você vai usar programação para automatizar tarefas repetitivas, processar grandes volumes de dados, gerar relatórios e criar visualizações impactantes. Python e SQL serão suas ferramentas principais.</p>
+
+        <div class="info-box warning"><strong>⚠️ Importante</strong>Não se preocupe em memorizar tudo de primeira. Programação se aprende fazendo. O segredo é praticar todo dia, mesmo que por 20 minutos.</div>
+      `,
+      codeTitle:'Seu primeiro algoritmo em Python',
+      code:`# Algoritmo: calcular a média de vendas
+# Entrada: lista de vendas diárias
+# Processo: somar e dividir pelo total
+# Saída: média
+
+vendas = [1500, 2300, 1800, 3100, 2700]
+
+soma = sum(vendas)        # soma todos os valores
+quantidade = len(vendas)  # conta quantos valores
+media = soma / quantidade  # calcula a média
+
+print(f"Total de vendas: R$ {soma:,.2f}")
+print(f"Média diária: R$ {media:,.2f}")
+print(f"Melhor dia: R$ {max(vendas):,.2f}")`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual é o principal objetivo de um algoritmo?',
+          code:null,
+          opts:['Executar o programa mais rápido','Resolver um problema através de passos definidos e finitos','Usar o mínimo de memória possível','Escrever menos linhas de código'],
+          correct:1,
+          exp:'Um algoritmo é uma sequência <strong>finita e bem definida</strong> de instruções para resolver um problema. Velocidade e uso de memória são preocupações secundárias (otimização), não o objetivo principal.'
+        },
+        {
+          q:'No "pensamento computacional", o que significa DECOMPOSIÇÃO?',
+          code:null,
+          opts:['Deletar partes desnecessárias do código','Dividir um problema complexo em subproblemas menores e mais fáceis','Organizar o código em pastas','Comprimir arquivos de dados'],
+          correct:1,
+          exp:'Decomposição é a habilidade de <strong>quebrar problemas grandes em partes menores</strong>. Por exemplo, "construir um dashboard" pode ser decomposto em: coletar dados → limpar dados → calcular métricas → criar gráficos → formatar layout.'
+        },
+        {
+          q:'Qual seria o OUTPUT deste algoritmo?\n\nnumeros = [10, 20, 30]\nresultado = sum(numeros) / len(numeros)\nprint(resultado)',
+          code:'numeros = [10, 20, 30]\nresultado = sum(numeros) / len(numeros)\nprint(resultado)',
+          opts:['60','3','20.0','10'],
+          correct:2,
+          exp:'sum([10,20,30]) = 60, len([10,20,30]) = 3. Então 60/3 = <strong>20.0</strong>. Em Python 3, divisão entre inteiros retorna float (número decimal).'
+        },
+        {
+          q:'Qual a analogia CORRETA entre culinária e programação?',
+          opts:['A receita é o hardware; o forno é o software','A receita é o algoritmo; os ingredientes são os dados de entrada','O chef é o compilador; o forno é o processador','Os utensílios são o código; o prato final é a memória RAM'],
+          correct:1,
+          exp:'A <strong>receita</strong> é o algoritmo (instruções passo a passo). Os <strong>ingredientes</strong> são os dados de entrada (input). O <strong>prato pronto</strong> é a saída (output). O processo de cozinhar é o processamento.'
+        }
+      ]
+    },
+    {
+      id:'m1l2',title:'Variáveis, Tipos de Dados e Operadores',
+      theory:`
+        <p>Variáveis são <strong>recipientes para armazenar dados</strong> na memória do computador. Pense nelas como etiquetas em caixas — cada caixa tem um nome e guarda um valor.</p>
+
+        <p>Em Python, os <strong>tipos de dados</strong> principais são:</p>
+        <ul>
+          <li><strong>int</strong> — inteiros: <code>42</code>, <code>-7</code>, <code>2024</code></li>
+          <li><strong>float</strong> — decimais: <code>3.14</code>, <code>-0.5</code>, <code>1500.99</code></li>
+          <li><strong>str</strong> — texto (string): <code>"João"</code>, <code>"2024-01-15"</code></li>
+          <li><strong>bool</strong> — verdadeiro/falso: <code>True</code>, <code>False</code></li>
+          <li><strong>list</strong> — lista de valores: <code>[1, 2, 3]</code></li>
+          <li><strong>dict</strong> — dicionário (chave:valor): <code>{"nome": "Ana", "idade": 30}</code></li>
+        </ul>
+
+        <div class="info-box"><strong>💡 Dica para Análise de Dados</strong>Saber o tipo dos dados é fundamental. Uma coluna de "vendas" como string não pode ser somada. Uma das tarefas mais comuns do analista é converter tipos de dados (ex: transformar "1500" em 1500).</div>
+
+        <p>Os <strong>operadores</strong> permitem realizar cálculos e comparações:</p>
+        <ul>
+          <li><strong>Aritméticos:</strong> + - * / // % **</li>
+          <li><strong>Comparação:</strong> == != > < >= <=</li>
+          <li><strong>Lógicos:</strong> and, or, not</li>
+        </ul>
+      `,
+      codeTitle:'Variáveis e tipos na prática',
+      code:`# === TIPOS DE DADOS ===
+nome_produto = "Notebook"          # str
+preco = 2499.99                    # float
+quantidade = 50                    # int
+em_estoque = True                  # bool
+categorias = ["Tech", "Eletrônico"] # list
+produto = {                        # dict
+    "nome": "Notebook",
+    "preco": 2499.99,
+    "estoque": 50
+}
+
+# Verificando tipos
+print(type(preco))        # <class 'float'>
+print(type(nome_produto)) # <class 'str'>
+
+# === OPERADORES ===
+desconto = 0.15
+preco_final = preco * (1 - desconto)
+print(f"Preço com desconto: R$ {preco_final:.2f}")  # R$ 2124.99
+
+# Conversão de tipos (muito usado em análise!)
+vendas_texto = "1500"
+vendas_num = int(vendas_texto)  # str → int
+print(vendas_num + 500)          # 2000
+
+# Operador lógico
+preco_alto = preco > 2000
+print(f"Produto caro? {preco_alto}")  # True`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual tipo de dado é mais adequado para armazenar o CPF "123.456.789-00"?',
+          opts:['int','float','str','bool'],
+          correct:2,
+          exp:'CPF deve ser <strong>str (string)</strong> pois contém pontos e hífen, e não será usado em operações matemáticas. Tratar CPF como número causaria erros (ex: CPF começando com 0 perderia o dígito).'
+        },
+        {
+          q:'Qual é o resultado de: 17 // 5?',
+          code:'print(17 // 5)',
+          opts:['3.4','3','2','5'],
+          correct:1,
+          exp:'O operador <strong>//</strong> é a divisão inteira (floor division). 17 ÷ 5 = 3 com resto 2. O resultado é apenas a parte inteira: <strong>3</strong>. O operador % retornaria o resto (2).'
+        },
+        {
+          q:'O que acontece ao executar este código?\n\nidade = "25"\nresultado = idade + 5',
+          code:'idade = "25"\nresultado = idade + 5',
+          opts:['Retorna 30','Retorna "255"','Gera um TypeError','Retorna 25'],
+          correct:2,
+          exp:'Em Python não é possível somar string com inteiro diretamente. Isso gera um <strong>TypeError</strong>. Para corrigir: <code>int(idade) + 5</code> ou <code>idade + str(5)</code> (que daria "255").'
+        },
+        {
+          q:'Qual operador retorna True?\n\nx = 10\nprint(x > 5 and x < 20)',
+          code:'x = 10\nprint(x > 5 and x < 20)',
+          opts:['False, pois and exige que ambos sejam maiores que 0','True, pois x > 5 e x < 20 são ambos verdadeiros','None, código inválido','True, pois basta um ser verdadeiro'],
+          correct:1,
+          exp:'10 > 5 é True, e 10 < 20 é True. O operador <strong>and</strong> retorna True somente quando <em>ambas</em> as condições são verdadeiras. 10 satisfaz as duas → <strong>True</strong>.'
+        }
+      ]
+    },
+    {
+      id:'m1l3',title:'Estruturas de Controle: if/else e loops',
+      theory:`
+        <p>Estruturas de controle determinam <strong>o fluxo de execução</strong> do seu programa. Sem elas, o código executaria linha por linha sempre da mesma forma.</p>
+
+        <p><strong>Condicional (if/elif/else)</strong> — executa blocos diferentes dependendo de uma condição:</p>
+
+        <p><strong>Loops</strong> — repetem blocos de código:</p>
+        <ul>
+          <li><strong>for</strong> — itera sobre uma sequência (lista, range, string)</li>
+          <li><strong>while</strong> — repete enquanto uma condição for verdadeira</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 No mundo real</strong>Como analista, você usará loops para processar cada linha de um DataFrame, aplicar transformações, calcular métricas por categoria, enviar alertas automáticos quando métricas saírem do padrão, etc.</div>
+
+        <p>Conceitos importantes:</p>
+        <ul>
+          <li><strong>break</strong> — interrompe o loop imediatamente</li>
+          <li><strong>continue</strong> — pula para a próxima iteração</li>
+          <li><strong>range(start, stop, step)</strong> — gera sequência de números</li>
+          <li><strong>enumerate(lista)</strong> — retorna índice e valor juntos</li>
+        </ul>
+      `,
+      codeTitle:'Controle de fluxo para análise de dados',
+      code:`# === IF/ELIF/ELSE ===
+vendas_mes = 87500
+
+if vendas_mes >= 100000:
+    status = "🏆 Meta Superada"
+    bonus = vendas_mes * 0.05
+elif vendas_mes >= 80000:
+    status = "✅ Meta Atingida"
+    bonus = vendas_mes * 0.03
+elif vendas_mes >= 60000:
+    status = "⚠️  Abaixo da Meta"
+    bonus = 0
+else:
+    status = "❌ Crítico"
+    bonus = 0
+
+print(f"{status} | Bônus: R$ {bonus:,.2f}")
+
+# === FOR LOOP ===
+produtos = [("Notebook", 2500), ("Mouse", 150), ("Teclado", 300)]
+total = 0
+
+for nome, preco in produtos:
+    total += preco
+    print(f"  {nome}: R$ {preco:.2f}")
+
+print(f"Total: R$ {total:.2f}")
+
+# === COMPREENSÃO DE LISTA (list comprehension) ===
+# Filtrar vendas acima de 1000
+vendas = [500, 1200, 800, 3000, 450, 1750]
+altas = [v for v in vendas if v > 1000]
+print(f"Vendas altas: {altas}")  # [1200, 3000, 1750]`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual o output deste código?\n\nfor i in range(1, 6):\n    if i % 2 == 0:\n        print(i)',
+          code:'for i in range(1, 6):\n    if i % 2 == 0:\n        print(i)',
+          opts:['1 3 5','2 4','1 2 3 4 5','2 4 6'],
+          correct:1,
+          exp:'range(1,6) gera [1,2,3,4,5]. O operador <strong>%</strong> retorna o resto da divisão. Números pares têm i%2 == 0: apenas 2 e 4. O resultado é <strong>2 e 4</strong> (em linhas separadas).'
+        },
+        {
+          q:'O que esta list comprehension produz?\n\n[x**2 for x in range(1,5)]',
+          code:'[x**2 for x in range(1,5)]',
+          opts:['[1, 4, 9, 16]','[2, 4, 8, 16]','[1, 2, 3, 4]','[1, 4, 9, 16, 25]'],
+          correct:0,
+          exp:'range(1,5) = [1,2,3,4]. Para cada x, calcula x**2: 1²=1, 2²=4, 3²=9, 4²=16. Resultado: <strong>[1, 4, 9, 16]</strong>. List comprehension é sintaxe poderosa muito usada com Pandas!'
+        },
+        {
+          q:'Qual a diferença entre "break" e "continue" em um loop?',
+          opts:['São sinônimos, fazem a mesma coisa','break encerra o loop; continue pula para a próxima iteração','continue encerra o loop; break pula para a próxima iteração','break reinicia o loop; continue para o programa'],
+          correct:1,
+          exp:'<strong>break</strong> interrompe completamente o loop. <strong>continue</strong> pula apenas a iteração atual e vai para a próxima. Exemplo: em um loop de 10 itens, continue no item 3 vai para o item 4; break no item 3 sai do loop completamente.'
+        }
+      ]
+    },
+    {
+      id:'m1l4',title:'Funções: Reutilizando e Organizando Código',
+      theory:`
+        <p>Funções são <strong>blocos de código reutilizáveis</strong> que recebem dados (parâmetros), processam e retornam resultados. Elas são a base da organização em qualquer código profissional.</p>
+
+        <p>Princípio fundamental: <strong>DRY — Don't Repeat Yourself</strong>. Se você escreveu o mesmo código 3x, é hora de criar uma função.</p>
+
+        <p>Em Python, funções são definidas com <code>def</code>:</p>
+        <ul>
+          <li><strong>Parâmetros padrão:</strong> <code>def func(x, y=10):</code></li>
+          <li><strong>*args:</strong> aceita múltiplos argumentos posicionais</li>
+          <li><strong>**kwargs:</strong> aceita múltiplos argumentos nomeados</li>
+          <li><strong>Lambda:</strong> funções anônimas em uma linha</li>
+        </ul>
+
+        <div class="info-box success"><strong>✅ Boas Práticas</strong>Funções devem fazer UMA coisa só (Single Responsibility). Nomeie com verbos: <code>calcular_media()</code>, <code>limpar_dados()</code>, <code>gerar_relatorio()</code>. Docstrings (comentários dentro da função) são essenciais em código profissional.</div>
+      `,
+      codeTitle:'Funções para análise de dados',
+      code:`# === FUNÇÃO BÁSICA ===
+def calcular_variacao(valor_atual, valor_anterior):
+    """
+    Calcula a variação percentual entre dois valores.
+    Retorna float com a variação em %.
+    """
+    if valor_anterior == 0:
+        return None  # evita divisão por zero
+    return ((valor_atual - valor_anterior) / valor_anterior) * 100
+
+# Uso
+var_jan = calcular_variacao(15000, 12000)
+print(f"Variação: {var_jan:.1f}%")  # Variação: 25.0%
+
+# === FUNÇÃO COM MÚLTIPLOS RETORNOS ===
+def analisar_serie(dados: list):
+    """Retorna estatísticas básicas de uma série numérica."""
+    if not dados:
+        return None, None, None, None
+    return (
+        min(dados),
+        max(dados),
+        sum(dados) / len(dados),
+        sorted(dados)[len(dados)//2]  # mediana simples
+    )
+
+vendas = [1200, 3400, 800, 2100, 4500, 1900]
+minv, maxv, media, mediana = analisar_serie(vendas)
+print(f"Min: {minv} | Max: {maxv} | Média: {media:.0f} | Mediana: {mediana}")
+
+# === LAMBDA (MUITO USADO COM PANDAS!) ===
+formatar_brl = lambda x: f"R$ {x:,.2f}"
+classificar = lambda v: "Alto" if v > 3000 else "Médio" if v > 1500 else "Baixo"
+
+print(formatar_brl(2499.99))     # R$ 2,499.99
+print(classificar(4500))          # Alto`,
+      language:'python',
+      exercises:[
+        {
+          q:'O que o código abaixo retorna?\n\ndef dobrar(x):\n    return x * 2\n\nresultado = dobrar(dobrar(5))\nprint(resultado)',
+          code:'def dobrar(x):\n    return x * 2\n\nresultado = dobrar(dobrar(5))\nprint(resultado)',
+          opts:['10','15','20','25'],
+          correct:2,
+          exp:'dobrar(5) = 10. Depois dobrar(10) = 20. Função aninhada: o resultado interno vira argumento da externa. Resultado: <strong>20</strong>.'
+        },
+        {
+          q:'Qual é a função equivalente à lambda abaixo?\n\nclassificar = lambda x: "par" if x % 2 == 0 else "ímpar"',
+          code:'classificar = lambda x: "par" if x % 2 == 0 else "ímpar"',
+          opts:['def classificar(x): return x % 2','def classificar(x):\n  if x%2==0: return "par"\n  else: return "ímpar"','def classificar(): return "par"','def classificar(x): return x == 0'],
+          correct:1,
+          exp:'Lambda é apenas açúcar sintático para funções simples de uma expressão. <code>lambda x: "par" if x%2==0 else "ímpar"</code> é equivalente a uma função def com if/else retornando "par" ou "ímpar".'
+        },
+        {
+          q:'Por que usar funções no código de análise de dados?',
+          opts:['Para o código rodar mais rápido automaticamente','Para reutilizar lógica, evitar repetição e facilitar manutenção','Funções são obrigatórias em Python','Para usar menos variáveis'],
+          correct:1,
+          exp:'Funções seguem o princípio DRY (Don\'t Repeat Yourself). Elas permitem <strong>reutilizar lógica</strong> em múltiplos lugares, <strong>testar</strong> cada parte separadamente, e <strong>manter</strong> o código quando há mudanças (alterar em um lugar, não em 50).'
+        }
+      ]
+    }
+  ]
+},
+{
+  id:'m2',title:'Python para Análise de Dados',icon:'🐍',level:'Iniciante',duration:'~10h',
+  color:'#3b82f6',
+  description:'Pandas, NumPy, leitura de dados, limpeza e transformações essenciais.',
+  skills:['Pandas','NumPy','CSV/Excel','Limpeza de Dados','DataFrames'],
+  lessons:[
+    {
+      id:'m2l1',title:'NumPy: Arrays e Operações Vetorizadas',
+      theory:`
+        <p>NumPy (Numerical Python) é a base de toda computação científica em Python. Sua estrutura principal é o <strong>ndarray</strong> — um array N-dimensional otimizado para operações matemáticas.</p>
+
+        <p>Por que NumPy é tão rápido? Porque usa operações <strong>vetorizadas</strong> (em C por baixo dos panos) ao invés de loops Python. Um loop Python para 1 milhão de elementos é ~100x mais lento que NumPy.</p>
+
+        <div class="info-box"><strong>💡 NumPy vs Lista Python</strong>Lista Python: flexível, pode misturar tipos, lenta para matemática. Array NumPy: tipo homogêneo, ocupa menos memória, operações vetorizadas ultrarrápidas.</div>
+
+        <p>Operações essenciais com NumPy:</p>
+        <ul>
+          <li><strong>np.array()</strong> — criar array</li>
+          <li><strong>np.zeros(), np.ones(), np.arange()</strong> — criar arrays especiais</li>
+          <li><strong>array.shape, .dtype, .size</strong> — inspecionar</li>
+          <li><strong>Broadcasting</strong> — operações entre arrays de tamanhos diferentes</li>
+          <li><strong>Indexação booleana</strong> — filtrar por condição</li>
+        </ul>
+      `,
+      codeTitle:'NumPy na prática',
+      code:`import numpy as np
+
+# === CRIANDO ARRAYS ===
+vendas = np.array([1500, 2300, 1800, 3100, 2700, 2100])
+print(vendas.shape)   # (6,)
+print(vendas.dtype)   # int64
+
+# === OPERAÇÕES VETORIZADAS (sem loop!) ===
+vendas_com_taxa = vendas * 1.1          # +10% em todas
+vendas_em_milhares = vendas / 1000       # dividir tudo por 1000
+
+# === ESTATÍSTICAS ===
+print(f"Média: {np.mean(vendas):.0f}")
+print(f"Mediana: {np.median(vendas):.0f}")
+print(f"Desvio padrão: {np.std(vendas):.0f}")
+print(f"Total: {np.sum(vendas):.0f}")
+print(f"Percentil 75: {np.percentile(vendas, 75):.0f}")
+
+# === INDEXAÇÃO BOOLEANA (filtro!) ===
+meta = 2000
+acima_meta = vendas[vendas > meta]
+print(f"Acima da meta: {acima_meta}")
+
+# === ARRAY 2D (matriz) ===
+matriz_vendas = np.array([
+    [1500, 2300, 1800],  # Região Sul
+    [3100, 2700, 2100],  # Região Norte
+    [4200, 1600, 3300]   # Região Centro
+])
+print(f"Shape: {matriz_vendas.shape}")  # (3, 3)
+print(f"Soma por região: {matriz_vendas.sum(axis=1)}")`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual a principal vantagem dos arrays NumPy sobre listas Python para análise de dados?',
+          opts:['Suportam qualquer tipo de dado misturado','São mais fáceis de criar','Operações matemáticas vetorizadas muito mais rápidas','Possuem mais métodos disponíveis'],
+          correct:2,
+          exp:'A grande vantagem do NumPy é a <strong>vetorização</strong>: operações são aplicadas em todo o array de uma vez, usando código otimizado em C. Para 1 milhão de operações, NumPy pode ser 100x mais rápido que um loop Python.'
+        },
+        {
+          q:'Qual o resultado de:\nimport numpy as np\narr = np.array([2, 4, 6, 8, 10])\nprint(arr[arr > 5])',
+          code:'import numpy as np\narr = np.array([2, 4, 6, 8, 10])\nprint(arr[arr > 5])',
+          opts:['[2, 4]','[6, 8, 10]','[True, True, False, False, False]','Error'],
+          correct:1,
+          exp:'A expressão <code>arr > 5</code> cria um array booleano [F, F, T, T, T]. Usar esse array como índice filtra os valores onde True: <strong>[6, 8, 10]</strong>. Isso é indexação booleana, base do Pandas!'
+        }
+      ]
+    },
+    {
+      id:'m2l2',title:'Pandas: DataFrames e Series',
+      theory:`
+        <p>Pandas é a biblioteca mais importante para análise de dados em Python. Fornece duas estruturas principais: <strong>Series</strong> (coluna única) e <strong>DataFrame</strong> (tabela 2D).</p>
+
+        <p>Pense no DataFrame como uma planilha Excel poderosa que você controla por código. Cada coluna é uma Series.</p>
+
+        <p><strong>Operações fundamentais com DataFrames:</strong></p>
+        <ul>
+          <li><code>df.head(n)</code> — primeiras n linhas</li>
+          <li><code>df.info()</code> — tipos e valores não-nulos</li>
+          <li><code>df.describe()</code> — estatísticas descritivas</li>
+          <li><code>df['coluna']</code> — selecionar coluna (Series)</li>
+          <li><code>df[['col1','col2']]</code> — selecionar múltiplas colunas</li>
+          <li><code>df.loc[linha, coluna]</code> — indexação por label</li>
+          <li><code>df.iloc[0:5, 0:3]</code> — indexação por posição</li>
+        </ul>
+
+        <div class="info-box warning"><strong>⚠️ loc vs iloc</strong><code>loc</code> usa rótulos (nomes). <code>iloc</code> usa posições numéricas (como slices de lista). Esta distinção é fonte de muita confusão no início!</div>
+      `,
+      codeTitle:'Pandas DataFrame essentials',
+      code:`import pandas as pd
+import numpy as np
+
+# === CRIANDO DATAFRAME ===
+dados = {
+    'data': pd.date_range('2024-01-01', periods=6, freq='ME'),
+    'produto': ['Notebook', 'Mouse', 'Teclado', 'Monitor', 'Headset', 'Webcam'],
+    'categoria': ['Tech', 'Periférico', 'Periférico', 'Tech', 'Áudio', 'Periférico'],
+    'vendas': [45, 230, 180, 32, 75, 120],
+    'receita': [112500, 34500, 54000, 89600, 22500, 18000]
+}
+
+df = pd.DataFrame(dados)
+
+# === INSPEÇÃO BÁSICA ===
+print(df.shape)       # (6, 5) — 6 linhas, 5 colunas
+print(df.dtypes)      # tipos de cada coluna
+print(df.describe())  # estatísticas descritivas
+
+# === SELEÇÃO ===
+print(df['produto'])                    # Series
+print(df[['produto', 'receita']])       # DataFrame
+
+# === FILTROS ===
+tech = df[df['categoria'] == 'Tech']
+alto_volume = df[df['vendas'] > 100]
+filtro_duplo = df[(df['receita'] > 20000) & (df['vendas'] < 100)]
+
+# === NOVA COLUNA CALCULADA ===
+df['ticket_medio'] = df['receita'] / df['vendas']
+df['acima_meta'] = df['vendas'] > 100
+
+print(df[['produto', 'vendas', 'ticket_medio']].to_string())`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual método do Pandas mostra um resumo com count, mean, std, min, max?',
+          opts:['df.info()','df.head()','df.describe()','df.summary()'],
+          correct:2,
+          exp:'<code>df.describe()</code> retorna estatísticas descritivas para todas as colunas numéricas: count, mean, std, min, 25%, 50%, 75%, max. É sempre o primeiro passo ao explorar um dataset novo.'
+        },
+        {
+          q:'Como filtrar um DataFrame para mostrar apenas linhas onde "vendas" > 500 E "categoria" == "Tech"?',
+          opts:['df[df.vendas > 500 & df.categoria == "Tech"]','df[df["vendas"] > 500 & df["categoria"] == "Tech"]','df[(df["vendas"] > 500) & (df["categoria"] == "Tech")]','df.filter(vendas=">500", categoria="Tech")'],
+          correct:2,
+          exp:'Com múltiplos filtros, CADA condição deve estar entre parênteses, e usar <strong>&</strong> (and bitwise) em vez de <strong>and</strong>. A forma correta é: <code>df[(condição1) & (condição2)]</code>. Omitir os parênteses extras causa erro de precedência de operadores.'
+        },
+        {
+          q:'Qual a diferença entre df.loc e df.iloc?',
+          opts:['Não há diferença, são sinônimos','loc usa índices numéricos, iloc usa nomes','loc usa rótulos/nomes, iloc usa posição numérica','loc é mais rápido que iloc'],
+          correct:2,
+          exp:'<strong>loc</strong>: indexação baseada em <em>rótulos</em> (label-based). Ex: df.loc[0:5, "nome"]. <strong>iloc</strong>: indexação baseada em <em>posição inteira</em> (integer-based). Ex: df.iloc[0:5, 0]. Se o índice do DataFrame for 0,1,2,3... eles parecem iguais, mas com índices não-numéricos a diferença é crucial.'
+        }
+      ]
+    },
+    {
+      id:'m2l3',title:'Limpeza e Transformação de Dados',
+      theory:`
+        <p>Na prática, <strong>80% do tempo de um analista</strong> é gasto limpando dados. Dados reais chegam sujos: valores nulos, duplicatas, formatos inconsistentes, erros de digitação, outliers.</p>
+
+        <p><strong>Problemas mais comuns:</strong></p>
+        <ul>
+          <li>Valores ausentes (NaN, None, "", "N/A")</li>
+          <li>Tipos errados ("100" como string ao invés de int)</li>
+          <li>Duplicatas (mesma linha aparece múltiplas vezes)</li>
+          <li>Inconsistências ("São Paulo", "SP", "sao paulo" = mesma cidade?)</li>
+          <li>Outliers (valores absurdos que podem ser erro)</li>
+          <li>Datas em formatos diferentes ("01/15/2024", "2024-01-15")</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 Regra de Ouro</strong>NUNCA modifique dados originais! Sempre trabalhe em cópias: <code>df_limpo = df.copy()</code>. Mantenha o dataset bruto intacto para auditoria.</div>
+
+        <p><strong>Funções essenciais de limpeza:</strong></p>
+        <ul>
+          <li><code>df.isnull().sum()</code> — contar nulos por coluna</li>
+          <li><code>df.dropna()</code> — remover linhas com nulo</li>
+          <li><code>df.fillna(valor)</code> — preencher nulos</li>
+          <li><code>df.duplicated()</code> — encontrar duplicatas</li>
+          <li><code>df.drop_duplicates()</code> — remover duplicatas</li>
+          <li><code>df.astype(tipo)</code> — converter tipo</li>
+          <li><code>df.str.strip().str.lower()</code> — limpar strings</li>
+        </ul>
+      `,
+      codeTitle:'Pipeline de limpeza de dados',
+      code:`import pandas as pd
+import numpy as np
+
+# Simulando dados sujos (muito comum na vida real!)
+dados_sujos = {
+    'Nome': ['Ana Silva', 'bruno costa', '  Carlos  ', 'Ana Silva', None],
+    'Vendas': ['1500', '2300', 'N/A', '1800', '900'],
+    'Data': ['2024-01-15', '15/01/2024', '2024-01-16', '2024-01-17', '2024-01-18'],
+    'Região': ['SP', 'SP', 'RJ', 'SP', 'MG']
+}
+df = pd.DataFrame(dados_sujos)
+
+print("=== DIAGNÓSTICO ===")
+print(df.isnull().sum())  # contar nulos
+print(f"Duplicatas: {df.duplicated().sum()}")
+
+# === LIMPEZA ===
+df_limpo = df.copy()  # SEMPRE trabalhe na cópia!
+
+# 1. Remover duplicatas
+df_limpo = df_limpo.drop_duplicates()
+
+# 2. Remover nulos (ou fillna para preencher)
+df_limpo = df_limpo.dropna(subset=['Nome'])
+
+# 3. Padronizar strings
+df_limpo['Nome'] = df_limpo['Nome'].str.strip().str.title()
+
+# 4. Tratar valores inválidos e converter tipos
+df_limpo['Vendas'] = pd.to_numeric(df_limpo['Vendas'], errors='coerce')
+df_limpo['Vendas'] = df_limpo['Vendas'].fillna(df_limpo['Vendas'].median())
+
+# 5. Padronizar datas
+df_limpo['Data'] = pd.to_datetime(df_limpo['Data'], dayfirst=True, errors='coerce')
+
+print("\n=== DADOS LIMPOS ===")
+print(df_limpo)
+print(df_limpo.dtypes)`,
+      language:'python',
+      exercises:[
+        {
+          q:'Como verificar o número de valores ausentes em cada coluna de um DataFrame?',
+          opts:['df.count_nulls()','df.isnull().sum()','df.missing()','df.na_count()'],
+          correct:1,
+          exp:'<code>df.isnull()</code> retorna um DataFrame booleano (True onde há NaN). <code>.sum()</code> soma os True de cada coluna (True=1, False=0), resultando no count de nulos por coluna. É o primeiro diagnóstico em qualquer análise.'
+        },
+        {
+          q:'Por que usar df_limpo = df.copy() antes de limpar dados?',
+          opts:['Para economizar memória','Para preservar o dataset original e poder auditar/refazer a limpeza','É apenas uma convenção sem importância','Para deixar o código mais rápido'],
+          correct:1,
+          exp:'Trabalhar em cópia é fundamental: preserva os dados originais para auditoria, permite comparar antes/depois, e evita erros difíceis de debugar. Em produção, você pode precisar reprocessar os dados. Nunca modifique o dataset bruto!'
+        },
+        {
+          q:'Qual o melhor método para converter a coluna "valor" que contém "1500", "2000" e "ERRO" para numérico?',
+          code:'df["valor"] = pd.to_numeric(df["valor"], errors=???)',
+          opts:['errors="raise" (padrão)','errors="ignore"','errors="coerce"','errors="skip"'],
+          correct:2,
+          exp:'<code>errors="coerce"</code> converte valores inválidos (como "ERRO") para <strong>NaN</strong> ao invés de lançar erro. Isso permite tratar os inválidos depois com fillna(). <code>raise</code> lança exceção. <code>ignore</code> mantém o valor original sem converter.'
+        }
+      ]
+    },
+    {
+      id:'m2l4',title:'Agrupamentos, Pivot e Merge',
+      theory:`
+        <p>Depois de limpar os dados, chegou a hora de extrair insights. As operações de <strong>groupby</strong>, <strong>pivot_table</strong> e <strong>merge</strong> são o coração da análise em Pandas.</p>
+
+        <p><strong>GroupBy — "split, apply, combine":</strong></p>
+        <ul>
+          <li>Split: divide o DataFrame em grupos</li>
+          <li>Apply: aplica uma função a cada grupo</li>
+          <li>Combine: combina os resultados</li>
+        </ul>
+
+        <p><strong>Pivot Table</strong> — cria tabela cruzada (como Excel) para comparar categorias.</p>
+
+        <p><strong>Merge/Join</strong> — combina DataFrames por chave comum (como SQL JOIN):</p>
+        <ul>
+          <li><code>how='inner'</code> — apenas correspondências (padrão)</li>
+          <li><code>how='left'</code> — todos da esquerda + correspondências</li>
+          <li><code>how='outer'</code> — todos os registros</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 Apply e Agg</strong><code>.agg()</code> permite múltiplas funções ao mesmo tempo: <code>df.groupby('cat').agg({'vendas': ['sum','mean','count']})</code>. <code>.apply()</code> aplica função customizada por grupo.</div>
+      `,
+      codeTitle:'GroupBy, Pivot e Merge',
+      code:`import pandas as pd
+
+vendas = pd.DataFrame({
+    'mes': ['Jan','Jan','Fev','Fev','Mar','Mar'],
+    'regiao': ['Sul','Norte','Sul','Norte','Sul','Norte'],
+    'produto': ['A','B','A','B','A','B'],
+    'vendas': [1200, 800, 1500, 900, 1100, 1300],
+    'custo': [800, 500, 950, 600, 700, 850]
+})
+
+# === GROUPBY BÁSICO ===
+por_regiao = vendas.groupby('regiao')['vendas'].sum()
+print(por_regiao)
+
+# === GROUPBY COM MÚLTIPLAS FUNÇÕES ===
+resumo = vendas.groupby('regiao').agg(
+    total_vendas=('vendas', 'sum'),
+    media_vendas=('vendas', 'mean'),
+    qtd_registros=('vendas', 'count'),
+    lucro=('vendas', lambda x: (x - vendas.loc[x.index, 'custo']).sum())
+)
+print(resumo)
+
+# === PIVOT TABLE ===
+pivot = pd.pivot_table(
+    vendas,
+    values='vendas',
+    index='mes',
+    columns='regiao',
+    aggfunc='sum',
+    margins=True  # linha/coluna de total
+)
+print(pivot)
+
+# === MERGE (JOIN) ===
+clientes = pd.DataFrame({'id': [1,2,3], 'nome': ['Ana','Bob','Carol']})
+pedidos = pd.DataFrame({'id_cliente': [1,1,2,3], 'valor': [500,300,800,200]})
+
+resultado = pd.merge(pedidos, clientes, left_on='id_cliente', right_on='id', how='left')
+print(resultado)`,
+      language:'python',
+      exercises:[
+        {
+          q:'Para calcular a MÉDIA de vendas por categoria, qual código está correto?',
+          opts:['df.groupby("categoria").vendas.mean()','df.mean(groupby="categoria")','df.aggregate("mean", by="categoria")','df["categoria"].mean()'],
+          correct:0,
+          exp:'A sintaxe correta é <code>df.groupby("coluna_grupo")["coluna_valor"].funcao()</code>. O groupby agrupa, depois seleciona a coluna de interesse e aplica a função de agregação.'
+        },
+        {
+          q:'Qual tipo de merge retorna TODOS os registros da tabela da esquerda, mesmo sem correspondência na direita?',
+          opts:['inner join','right join','left join','full outer join'],
+          correct:2,
+          exp:'<strong>Left join</strong> (how="left") mantém todos os registros do DataFrame da esquerda. Onde não há correspondência na direita, preenche com NaN. Útil quando você não quer perder registros da tabela principal.'
+        }
+      ]
+    }
+  ]
+},
+{
+  id:'m3',title:'SQL do Zero ao Avançado',icon:'🗄️',level:'Intermediário',duration:'~14h',
+  color:'#f59e0b',
+  description:'SELECT ao Window Functions, CTEs, índices, performance e projetos reais.',
+  skills:['SELECT','JOIN','GROUP BY','Subqueries','Window Functions','CTEs','Índices'],
+  lessons:[
+    {
+      id:'m3l1',title:'Fundamentos SQL: SELECT, WHERE, ORDER BY',
+      theory:`
+        <p>SQL (Structured Query Language) é a linguagem universal para bancos de dados relacionais. Todo analista de dados precisa dominar SQL — é a habilidade mais solicitada nas vagas.</p>
+
+        <p>Bancos de dados populares: <strong>PostgreSQL, MySQL, SQL Server, BigQuery, Snowflake, DuckDB, SQLite</strong>. A sintaxe central é a mesma em todos!</p>
+
+        <p><strong>Estrutura básica de uma query:</strong></p>
+        <ul>
+          <li><strong>SELECT</strong> — quais colunas retornar</li>
+          <li><strong>FROM</strong> — de qual tabela</li>
+          <li><strong>WHERE</strong> — filtros (executado ANTES do GROUP BY)</li>
+          <li><strong>GROUP BY</strong> — agrupar por categorias</li>
+          <li><strong>HAVING</strong> — filtros sobre grupos (executado DEPOIS do GROUP BY)</li>
+          <li><strong>ORDER BY</strong> — ordenação</li>
+          <li><strong>LIMIT</strong> — limitar quantidade de linhas</li>
+        </ul>
+
+        <div class="info-box warning"><strong>⚠️ Ordem de Execução SQL</strong>A ordem que você ESCREVE ≠ ordem que o banco EXECUTA. Ordem real: FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. Isso explica por que não pode usar aliases do SELECT no WHERE!</div>
+
+        <div class="info-box success"><strong>✅ Playground Interativo Abaixo</strong>Use o SQL Playground desta lição para experimentar as queries. O banco já vem carregado com dados de exemplo!</div>
+      `,
+      codeTitle:'Queries fundamentais',
+      code:`-- Tabela: vendas (id, data, produto, categoria, valor, quantidade, regiao)
+
+-- SELECT básico com alias
+SELECT 
+    produto AS "Produto",
+    categoria AS "Categoria",
+    valor AS "Valor Unitário",
+    quantidade AS "Qtd",
+    valor * quantidade AS "Receita Total"
+FROM vendas;
+
+-- WHERE com múltiplas condições
+SELECT produto, valor, regiao
+FROM vendas
+WHERE regiao = 'Sul' 
+  AND valor > 1000
+  AND data >= '2024-01-01';
+
+-- LIKE para buscas parciais
+SELECT * FROM vendas
+WHERE produto LIKE '%book%';  -- contém "book"
+
+-- IN para múltiplos valores
+SELECT produto, regiao, valor
+FROM vendas
+WHERE regiao IN ('Sul', 'Sudeste')
+ORDER BY valor DESC
+LIMIT 10;`,
+      language:'sql',
+      hasPlayground:true,
+      exercises:[
+        {
+          q:'Qual cláusula SQL filtra linhas ANTES da agregação (GROUP BY)?',
+          opts:['HAVING','FILTER','WHERE','SELECT'],
+          correct:2,
+          exp:'<strong>WHERE</strong> filtra linhas individuais antes de qualquer agrupamento. <strong>HAVING</strong> filtra grupos DEPOIS do GROUP BY. Não é possível usar funções de agregação (SUM, COUNT) no WHERE — use HAVING para isso.'
+        },
+        {
+          q:'O que faz: SELECT DISTINCT categoria FROM produtos?',
+          opts:['Retorna todas as categorias incluindo duplicatas','Retorna apenas valores únicos de categoria, sem repetição','Ordena as categorias em ordem alfabética','Conta quantas categorias existem'],
+          correct:1,
+          exp:'<strong>DISTINCT</strong> remove registros duplicados do resultado. Se houver 100 produtos de 5 categorias, SELECT DISTINCT retorna apenas as 5 categorias únicas (sem repetir).'
+        },
+        {
+          q:'Para buscar clientes cujo nome COMEÇA com "Ana", qual WHERE está correto?',
+          opts:["WHERE nome = 'Ana'","WHERE nome LIKE 'Ana%'","WHERE nome LIKE '%Ana'","WHERE nome CONTAINS 'Ana'"],
+          correct:1,
+          exp:'No LIKE, <strong>%</strong> representa qualquer sequência de caracteres. "Ana%" = começa com Ana (Ana, Ana Maria, Anabela...). "%Ana" = termina com Ana. "%Ana%" = contém Ana em qualquer posição.'
+        }
+      ]
+    },
+    {
+      id:'m3l2',title:'JOINs: Combinando Tabelas',
+      theory:`
+        <p>JOINs são fundamentais para trabalhar com dados relacionais. Na prática, análises sempre envolvem múltiplas tabelas (vendas + clientes + produtos + regiões).</p>
+
+        <p><strong>Tipos de JOIN:</strong></p>
+        <ul>
+          <li><strong>INNER JOIN</strong> — apenas registros com correspondência em AMBAS as tabelas</li>
+          <li><strong>LEFT JOIN</strong> — todos da esquerda + correspondências da direita (NULL onde não há match)</li>
+          <li><strong>RIGHT JOIN</strong> — todos da direita + correspondências da esquerda</li>
+          <li><strong>FULL OUTER JOIN</strong> — todos os registros de ambas as tabelas</li>
+          <li><strong>CROSS JOIN</strong> — produto cartesiano (todas as combinações)</li>
+          <li><strong>SELF JOIN</strong> — join da tabela com ela mesma</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 Dica Profissional</strong>LEFT JOIN é o mais usado no dia a dia. Use quando quiser manter TODOS os registros da tabela principal (esquerda) e pegar informações complementares. Verifique sempre NULLs após LEFT JOINs — indicam registros sem correspondência!</div>
+
+        <div class="info-box warning"><strong>⚠️ Armadilha Comum</strong>Múltiplos JOINs podem gerar "multiplicação" de linhas se a chave não for única. Sempre verifique o COUNT antes e depois de JOINs complexos!</div>
+      `,
+      codeTitle:'JOINs na prática',
+      code:`-- Estrutura das tabelas:
+-- pedidos: id_pedido, id_cliente, id_produto, data, quantidade
+-- clientes: id_cliente, nome, cidade, segmento
+-- produtos: id_produto, nome, categoria, preco_unit
+
+-- === INNER JOIN ===
+-- Apenas pedidos COM cliente E produto cadastrado
+SELECT 
+    p.id_pedido,
+    c.nome AS cliente,
+    pr.nome AS produto,
+    pr.preco_unit * p.quantidade AS valor_total
+FROM pedidos p
+INNER JOIN clientes c ON p.id_cliente = c.id_cliente
+INNER JOIN produtos pr ON p.id_produto = pr.id_produto
+ORDER BY valor_total DESC;
+
+-- === LEFT JOIN ===
+-- Todos os clientes, mesmo sem pedidos
+SELECT 
+    c.nome,
+    c.segmento,
+    COUNT(p.id_pedido) AS qtd_pedidos,
+    COALESCE(SUM(pr.preco_unit * p.quantidade), 0) AS total_gasto
+FROM clientes c
+LEFT JOIN pedidos p ON c.id_cliente = p.id_cliente
+LEFT JOIN produtos pr ON p.id_produto = pr.id_produto
+GROUP BY c.id_cliente, c.nome, c.segmento
+ORDER BY total_gasto DESC;
+
+-- === DETECTAR REGISTROS SEM MATCH ===
+-- Clientes que NUNCA fizeram pedido
+SELECT c.nome, c.cidade
+FROM clientes c
+LEFT JOIN pedidos p ON c.id_cliente = p.id_cliente
+WHERE p.id_pedido IS NULL;`,
+      language:'sql',
+      hasPlayground:true,
+      exercises:[
+        {
+          q:'Qual JOIN retorna APENAS os registros que têm correspondência nas DUAS tabelas?',
+          opts:['LEFT JOIN','FULL OUTER JOIN','INNER JOIN','RIGHT JOIN'],
+          correct:2,
+          exp:'<strong>INNER JOIN</strong> é a interseção: retorna apenas linhas onde há match nas duas tabelas. Se um cliente não tem pedidos (LEFT) ou um pedido tem id_cliente inválido (RIGHT), esse registro não aparece no INNER JOIN.'
+        },
+        {
+          q:'Como encontrar todos os clientes que NÃO fizeram nenhum pedido?',
+          opts:['INNER JOIN pedidos ON ... WHERE pedidos.id IS NOT NULL','LEFT JOIN pedidos ON ... WHERE pedidos.id IS NULL','RIGHT JOIN pedidos ON ... WHERE clientes.id IS NULL','NOT IN (SELECT id FROM pedidos)'],
+          correct:1,
+          exp:'O padrão clássico: <strong>LEFT JOIN + WHERE chave_direita IS NULL</strong>. O LEFT JOIN mantém todos os clientes. Onde não há pedido correspondente, a coluna do pedido fica NULL. Filtrar WHERE pedido IS NULL isola exatamente os clientes sem pedidos.'
+        },
+        {
+          q:'Ao fazer JOIN entre 3 tabelas e o resultado tem mais linhas que o esperado, o problema mais provável é:',
+          opts:['O banco está com bug','Há registros duplicados na chave de join em uma das tabelas','INNER JOIN sempre multiplica linhas','ORDER BY está causando duplicação'],
+          correct:1,
+          exp:'Se a chave de join não for única (ex: um cliente com vários endereços), cada linha da tabela principal gera múltiplas linhas no join. Sempre verifique: <code>SELECT id, COUNT(*) FROM tabela GROUP BY id HAVING COUNT(*) > 1</code> antes de JOINs.'
+        }
+      ]
+    },
+    {
+      id:'m3l3',title:'GROUP BY, HAVING e Funções de Agregação',
+      theory:`
+        <p>Funções de agregação transformam múltiplas linhas em um único valor resumido. São a base de qualquer análise de negócio.</p>
+
+        <p><strong>Funções de agregação principais:</strong></p>
+        <ul>
+          <li><code>COUNT(*)</code> — conta todas as linhas</li>
+          <li><code>COUNT(coluna)</code> — conta valores não-NULL</li>
+          <li><code>COUNT(DISTINCT coluna)</code> — conta valores únicos</li>
+          <li><code>SUM(coluna)</code> — soma</li>
+          <li><code>AVG(coluna)</code> — média</li>
+          <li><code>MIN() / MAX()</code> — mínimo e máximo</li>
+          <li><code>STRING_AGG() / GROUP_CONCAT()</code> — concatena strings</li>
+        </ul>
+
+        <p><strong>HAVING vs WHERE:</strong><br>
+        WHERE filtra linhas antes do GROUP BY. HAVING filtra grupos depois do GROUP BY. Só pode usar funções de agregação no HAVING, nunca no WHERE.</p>
+
+        <div class="info-box"><strong>💡 Regra do GROUP BY</strong>Toda coluna no SELECT que NÃO seja uma função de agregação deve aparecer no GROUP BY. Esta é a regra mais importante (e mais quebrada por iniciantes)!</div>
+      `,
+      codeTitle:'Agregações avançadas',
+      code:`-- Vendas por categoria com múltiplas métricas
+SELECT 
+    categoria,
+    COUNT(*) AS qtd_vendas,
+    COUNT(DISTINCT id_cliente) AS clientes_unicos,
+    SUM(valor) AS receita_total,
+    AVG(valor) AS ticket_medio,
+    MIN(valor) AS menor_venda,
+    MAX(valor) AS maior_venda,
+    ROUND(SUM(valor) * 100.0 / SUM(SUM(valor)) OVER (), 2) AS pct_receita
+FROM vendas
+GROUP BY categoria
+HAVING SUM(valor) > 10000  -- apenas categorias com >10k em receita
+ORDER BY receita_total DESC;
+
+-- Análise de cohort mensal
+SELECT 
+    strftime('%Y-%m', data) AS mes,
+    COUNT(*) AS qtd_pedidos,
+    COUNT(DISTINCT id_cliente) AS clientes_ativos,
+    SUM(valor) AS receita,
+    ROUND(AVG(valor), 2) AS ticket_medio,
+    ROUND(SUM(valor) / COUNT(DISTINCT id_cliente), 2) AS receita_por_cliente
+FROM vendas
+GROUP BY strftime('%Y-%m', data)
+ORDER BY mes;
+
+-- Clientes com mais de 3 pedidos (usando HAVING)
+SELECT 
+    id_cliente,
+    COUNT(*) AS total_pedidos,
+    SUM(valor) AS total_gasto
+FROM vendas
+GROUP BY id_cliente
+HAVING COUNT(*) > 3
+ORDER BY total_gasto DESC;`,
+      language:'sql',
+      hasPlayground:true,
+      exercises:[
+        {
+          q:'Por que não é possível usar SUM() no WHERE?',
+          opts:['É possível sim, é só sintaxe diferente','WHERE é executado ANTES do GROUP BY, então os grupos ainda não existem','SUM() é muito lento para WHERE','WHERE aceita apenas comparações simples'],
+          correct:1,
+          exp:'A ordem de execução SQL é: FROM → WHERE → GROUP BY → HAVING. O WHERE é processado linha por linha ANTES de qualquer agrupamento. Como SUM() precisa de um grupo para calcular, ele simplesmente não existe ainda nessa fase. Use HAVING para filtrar por agregações.'
+        },
+        {
+          q:'Qual query conta os clientes ÚNICOS que compraram em cada região?',
+          opts:['SELECT regiao, COUNT(id_cliente) FROM v GROUP BY regiao','SELECT regiao, COUNT(DISTINCT id_cliente) FROM v GROUP BY regiao','SELECT regiao, DISTINCT COUNT(id_cliente) FROM v GROUP BY regiao','SELECT COUNT(UNIQUE id_cliente) FROM v GROUP BY regiao'],
+          correct:1,
+          exp:'<code>COUNT(DISTINCT coluna)</code> conta valores únicos, ignorando repetições. <code>COUNT(coluna)</code> conta todas as ocorrências, incluindo duplicatas. Se um cliente fez 5 compras na região Sul, COUNT conta 5, COUNT(DISTINCT) conta 1.'
+        }
+      ]
+    },
+    {
+      id:'m3l4',title:'Subqueries e CTEs (WITH)',
+      theory:`
+        <p>Subqueries e CTEs (Common Table Expressions) permitem criar queries mais complexas e organizadas, como "queries dentro de queries".</p>
+
+        <p><strong>Subquery</strong> — query aninhada dentro de outra:</p>
+        <ul>
+          <li>No <strong>WHERE</strong>: filtra baseado em resultado de outra query</li>
+          <li>No <strong>FROM</strong>: usa como tabela temporária</li>
+          <li>No <strong>SELECT</strong>: calcula valor por linha (correlated subquery)</li>
+        </ul>
+
+        <p><strong>CTE (WITH...AS)</strong> — tabela temporária nomeada, definida no início da query. Vantagens sobre subquery:</p>
+        <ul>
+          <li>Muito mais legível e manutenível</li>
+          <li>Pode ser referenciada múltiplas vezes</li>
+          <li>Facilita debug (teste cada CTE separadamente)</li>
+          <li>Suporta recursão (hierarquias, caminhos)</li>
+        </ul>
+
+        <div class="info-box success"><strong>✅ Boas Práticas</strong>Prefira CTEs sobre subqueries aninhadas — são infinitamente mais fáceis de ler, manter e debugar. Em code reviews, CTEs bem nomeadas comunicam a intenção do código.</div>
+      `,
+      codeTitle:'Subqueries e CTEs profissionais',
+      code:`-- === SUBQUERY NO WHERE ===
+-- Clientes que compraram acima da média
+SELECT nome, total_gasto
+FROM (
+    SELECT id_cliente AS id,
+           SUM(valor) AS total_gasto
+    FROM vendas GROUP BY id_cliente
+) totais
+JOIN clientes ON totais.id = clientes.id_cliente
+WHERE total_gasto > (SELECT AVG(total_gasto) 
+                     FROM (SELECT SUM(valor) AS total_gasto 
+                           FROM vendas GROUP BY id_cliente));
+
+-- === MESMO COM CTE (muito mais legível!) ===
+WITH gasto_por_cliente AS (
+    SELECT 
+        id_cliente,
+        SUM(valor) AS total_gasto,
+        COUNT(*) AS qtd_pedidos
+    FROM vendas
+    GROUP BY id_cliente
+),
+media_gasto AS (
+    SELECT AVG(total_gasto) AS media FROM gasto_por_cliente
+)
+SELECT 
+    c.nome,
+    g.total_gasto,
+    g.qtd_pedidos,
+    ROUND(g.total_gasto / m.media * 100 - 100, 1) AS pct_acima_media
+FROM gasto_por_cliente g
+JOIN clientes c ON g.id_cliente = c.id_cliente
+CROSS JOIN media_gasto m
+WHERE g.total_gasto > m.media
+ORDER BY g.total_gasto DESC;`,
+      language:'sql',
+      hasPlayground:true,
+      exercises:[
+        {
+          q:'Qual a principal vantagem das CTEs (WITH) sobre subqueries aninhadas?',
+          opts:['CTEs são mais rápidas','CTEs são mais legíveis, nomeadas, reutilizáveis e fáceis de debugar','CTEs usam menos memória','CTEs são suportadas em mais bancos'],
+          correct:1,
+          exp:'A grande vantagem das CTEs é <strong>legibilidade e manutenibilidade</strong>. Você nomeia cada passo da lógica, pode testá-los individualmente, e pode referenciar a mesma CTE múltiplas vezes. Performance é similar às subqueries na maioria dos bancos modernos.'
+        },
+        {
+          q:'O que é uma "correlated subquery"?',
+          opts:['Uma subquery que usa CORRELATE','Uma subquery que referencia colunas da query externa em sua execução','Uma subquery dentro do FROM','Uma subquery com múltiplos resultados'],
+          correct:1,
+          exp:'Uma correlated subquery é executada UMA VEZ POR LINHA da query externa, usando valores daquela linha. Ex: encontrar o maior pedido de CADA cliente (a subquery usa o id do cliente da linha atual). São poderosas mas potencialmente lentas em tabelas grandes.'
+        }
+      ]
+    },
+    {
+      id:'m3l5',title:'Window Functions: O Poder da Análise Avançada',
+      theory:`
+        <p>Window Functions são uma das funcionalidades mais poderosas do SQL. Permitem calcular valores relacionando cada linha com um conjunto de linhas próximas, sem colapsar o resultado como GROUP BY faz.</p>
+
+        <p><strong>Sintaxe base:</strong><br>
+        <code>FUNÇÃO() OVER (PARTITION BY col ORDER BY col ROWS/RANGE BETWEEN ...)</code></p>
+
+        <p><strong>Funções de Ranking:</strong></p>
+        <ul>
+          <li><code>ROW_NUMBER()</code> — numeração única (sem empate)</li>
+          <li><code>RANK()</code> — com empate, pula posições</li>
+          <li><code>DENSE_RANK()</code> — com empate, sem pular posições</li>
+          <li><code>NTILE(n)</code> — divide em n grupos (quartis, decis)</li>
+        </ul>
+
+        <p><strong>Funções de Offset:</strong></p>
+        <ul>
+          <li><code>LAG(col, n)</code> — valor n linhas ANTES (MoM, YoY)</li>
+          <li><code>LEAD(col, n)</code> — valor n linhas DEPOIS</li>
+          <li><code>FIRST_VALUE() / LAST_VALUE()</code></li>
+        </ul>
+
+        <p><strong>Funções de Agregação como Window:</strong> SUM, AVG, COUNT, MAX — mas mantendo todas as linhas!</p>
+
+        <div class="info-box"><strong>💡 Casos de Uso Reais</strong>Crescimento MoM (LAG), running total (SUM acumulado), top-N por categoria (ROW_NUMBER), percentual do total (SUM OVER / SUM()), percentis (NTILE), primeira/última compra por cliente (FIRST_VALUE).</div>
+      `,
+      codeTitle:'Window Functions na prática real',
+      code:`-- === RANKING POR CATEGORIA ===
+-- Top 3 produtos por receita em cada categoria
+WITH ranked AS (
+    SELECT 
+        produto,
+        categoria,
+        SUM(valor) AS receita,
+        ROW_NUMBER() OVER (
+            PARTITION BY categoria 
+            ORDER BY SUM(valor) DESC
+        ) AS ranking
+    FROM vendas
+    GROUP BY produto, categoria
+)
+SELECT * FROM ranked WHERE ranking <= 3;
+
+-- === CRESCIMENTO MÊS A MÊS ===
+WITH vendas_mes AS (
+    SELECT strftime('%Y-%m', data) AS mes, SUM(valor) AS receita
+    FROM vendas GROUP BY 1
+)
+SELECT 
+    mes,
+    receita,
+    LAG(receita) OVER (ORDER BY mes) AS receita_mes_anterior,
+    ROUND((receita - LAG(receita) OVER (ORDER BY mes)) 
+          / LAG(receita) OVER (ORDER BY mes) * 100, 1) AS crescimento_pct,
+    SUM(receita) OVER (ORDER BY mes) AS receita_acumulada
+FROM vendas_mes;
+
+-- === PERCENTUAL SOBRE TOTAL ===
+SELECT 
+    categoria,
+    SUM(valor) AS receita,
+    ROUND(SUM(valor) * 100.0 / SUM(SUM(valor)) OVER (), 2) AS pct_total,
+    NTILE(4) OVER (ORDER BY SUM(valor)) AS quartil
+FROM vendas
+GROUP BY categoria;`,
+      language:'sql',
+      hasPlayground:true,
+      exercises:[
+        {
+          q:'Qual Window Function é ideal para calcular o crescimento mensal (comparar com o mês anterior)?',
+          opts:['ROW_NUMBER()','LEAD()','LAG()','RANK()'],
+          correct:2,
+          exp:'<code>LAG(coluna, 1)</code> retorna o valor da linha ANTERIOR. Para crescimento MoM: <code>(receita_atual - LAG(receita)) / LAG(receita) * 100</code>. LAG olha para trás, LEAD olha para frente.'
+        },
+        {
+          q:'Qual a diferença entre RANK() e DENSE_RANK() quando há empate?',
+          opts:['Não há diferença','RANK() pula posições após empate; DENSE_RANK() não pula','DENSE_RANK() pula posições; RANK() não','RANK() ignora empates; DENSE_RANK() os conta'],
+          correct:1,
+          exp:'Se 2 produtos empatam em 1º lugar: <strong>RANK</strong> dá 1,1,3 (pula o 2). <strong>DENSE_RANK</strong> dá 1,1,2 (não pula). ROW_NUMBER dá 1,2,3 (ignora o empate, sempre único). Use DENSE_RANK quando não quiser "buracos" na numeração.'
+        },
+        {
+          q:'O que faz PARTITION BY em uma Window Function?',
+          opts:['Divide o resultado em arquivos separados','Define o conjunto de linhas para cada cálculo (como GROUP BY mas sem colapsar)','Ordena as linhas dentro da janela','Limita o número de linhas processadas'],
+          correct:1,
+          exp:'<strong>PARTITION BY</strong> divide as linhas em grupos (partições) para o cálculo da window function, mas ao contrário do GROUP BY, <em>mantém todas as linhas</em> no resultado. Cada linha calcula em relação às linhas da sua partição.'
+        }
+      ]
+    }
+  ]
+},
+{
+  id:'m4',title:'Visualização de Dados',icon:'📊',level:'Intermediário',duration:'~8h',
+  color:'#8b5cf6',
+  description:'Princípios de design, Matplotlib, Seaborn e conceitos de BI (Power BI/Tableau).',
+  skills:['Matplotlib','Seaborn','Storytelling com Dados','Power BI','Dashboards'],
+  lessons:[
+    {
+      id:'m4l1',title:'Princípios de Visualização Eficaz',
+      theory:`
+        <p>Uma visualização não serve apenas para mostrar dados — ela conta uma história. O objetivo é guiar o olho do espectador para o insight mais importante.</p>
+
+        <p><strong>Os 5 princípios do bom design de dados:</strong></p>
+        <ol>
+          <li><strong>Escolha o gráfico certo</strong> — cada tipo serve para um propósito</li>
+          <li><strong>Elimine ruído visual</strong> — remova tudo que não agrega informação</li>
+          <li><strong>Destaque o que importa</strong> — use cor, tamanho e posição com intenção</li>
+          <li><strong>Contextualize</strong> — sempre inclua comparativos (meta, período anterior)</li>
+          <li><strong>Título ≠ descrição do gráfico</strong> — o título deve ser o insight!</li>
+        </ol>
+
+        <p><strong>Guia de escolha de gráficos:</strong></p>
+        <ul>
+          <li>Comparação entre categorias → <strong>Barras</strong></li>
+          <li>Evolução temporal → <strong>Linha</strong></li>
+          <li>Composição (partes do todo) → <strong>Pizza / Treemap / Barras Empilhadas</strong></li>
+          <li>Distribuição → <strong>Histograma / Boxplot / Violino</strong></li>
+          <li>Correlação → <strong>Scatter Plot / Heatmap</strong></li>
+          <li>Comparação múltipla → <strong>Scatter Matrix / Heatmap de Correlação</strong></li>
+        </ul>
+
+        <div class="info-box warning"><strong>⚠️ Armadilhas Comuns</strong>Pizza charts com +5 fatias são difíceis de comparar. Eixos truncados enganam (sempre comece o Y no zero para barras). 3D nunca adiciona valor, só confusão. Cores demais = sem destaque.</div>
+
+        <div class="info-box"><strong>💡 Data-Ink Ratio (Edward Tufte)</strong>O princípio de Tufte: maximize a proporção de "tinta de dados" vs "tinta total". Cada elemento visual deve justificar sua existência. Remova bordas desnecessárias, grades excessivas, cores sem significado.</div>
+      `,
+      codeTitle:'Matplotlib e Seaborn',
+      code:`import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# Configuração profissional
+plt.rcParams.update({
+    'figure.facecolor': '#0a0e1a',
+    'axes.facecolor': '#111827',
+    'axes.edgecolor': '#1e2d47',
+    'text.color': '#e2e8f0',
+    'axes.labelcolor': '#94a3b8',
+    'xtick.color': '#64748b',
+    'ytick.color': '#64748b',
+    'grid.color': '#1e2d47',
+    'grid.alpha': 0.5,
+    'font.family': 'monospace'
+})
+
+# Dados de exemplo
+meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun']
+receita = [45000, 52000, 48000, 61000, 58000, 72000]
+meta = [50000] * 6
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+fig.suptitle('Dashboard de Vendas 2024', fontsize=14, fontweight='bold', color='#e2e8f0')
+
+# Gráfico 1: Linha com área
+ax1 = axes[0]
+ax1.plot(meses, receita, color='#00e5ff', linewidth=2.5, marker='o', markersize=7)
+ax1.fill_between(meses, receita, alpha=0.1, color='#00e5ff')
+ax1.axhline(y=50000, color='#f59e0b', linestyle='--', alpha=0.7, label='Meta')
+ax1.set_title('Receita vs Meta', color='#e2e8f0', fontweight='bold')
+ax1.legend()
+
+# Gráfico 2: Heatmap de correlação (Seaborn)
+df = pd.DataFrame(np.random.randn(50, 4), columns=['Vendas','Leads','Conversão','NPS'])
+corr = df.corr()
+sns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', ax=axes[1], 
+            square=True, linewidths=0.5)
+axes[1].set_title('Correlação entre Métricas', color='#e2e8f0', fontweight='bold')
+
+plt.tight_layout()
+plt.savefig('dashboard.png', dpi=150, bbox_inches='tight')
+plt.show()`,
+      language:'python',
+      exercises:[
+        {
+          q:'Para visualizar a EVOLUÇÃO das vendas ao longo do tempo (12 meses), qual gráfico é mais adequado?',
+          opts:['Gráfico de barras vertical','Gráfico de pizza','Gráfico de linha','Scatter plot'],
+          correct:2,
+          exp:'<strong>Gráfico de linha</strong> é ideal para dados temporais sequenciais, pois a linha conecta os pontos e destaca a tendência e variações ao longo do tempo. Barras são melhores para comparar categorias sem ordem temporal.'
+        },
+        {
+          q:'Qual princípio define que o título de um gráfico deve ser o INSIGHT, não a descrição?',
+          opts:['Data-Ink Ratio','Storytelling com dados','Chart Junk','Gestalt principle'],
+          correct:1,
+          exp:'No <strong>Storytelling com dados</strong> (princípio popularizado por Cole Nussbaumer Knaflic), o título deve comunicar o insight principal. "Vendas por Região 2024" é descritivo. "Região Sul lidera com 40% da receita total" é um insight que guia a leitura.'
+        },
+        {
+          q:'Por que geralmente NÃO se deve usar gráfico de pizza com muitas fatias?',
+          opts:['Pizza charts são proibidos em relatórios','Humanos são ruins em comparar ângulos; com muitas fatias fica impossível distinguir diferenças','Pizza é mais lento para renderizar','Não há espaço para labels com muitas fatias'],
+          correct:1,
+          exp:'O problema do pizza chart é perceptual: humanos comparam comprimentos muito melhor que ângulos/áreas. Com 6+ fatias, é praticamente impossível ver qual é maior. Barras horizontais classificadas permitem comparação muito mais precisa.'
+        }
+      ]
+    },
+    {
+      id:'m4l2',title:'Conceitos de BI: Power BI e Tableau',
+      theory:`
+        <p>Business Intelligence (BI) ferramentas permitem criar dashboards interativos sem escrever código. Power BI (Microsoft) e Tableau são as mais usadas no mercado corporativo.</p>
+
+        <p><strong>Conceitos fundamentais de BI:</strong></p>
+        <ul>
+          <li><strong>Modelo de dados</strong> — como as tabelas se relacionam (Star Schema, Snowflake)</li>
+          <li><strong>Métricas calculadas</strong> — KPIs definidos como medidas (DAX no Power BI)</li>
+          <li><strong>Drill-down</strong> — explorar dados em níveis mais detalhados</li>
+          <li><strong>Filtros e slicers</strong> — controles interativos do usuário</li>
+          <li><strong>Refresh automático</strong> — atualização periódica dos dados</li>
+        </ul>
+
+        <p><strong>Star Schema — o modelo mais usado em Data Warehouses:</strong></p>
+        <ul>
+          <li><strong>Tabela Fato</strong> (centro) — transações, eventos, métricas numéricas</li>
+          <li><strong>Tabelas Dimensão</strong> (pontas) — contexto: produto, cliente, data, localização</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 DAX — Power BI Formula Language</strong>DAX (Data Analysis Expressions) é a linguagem de fórmulas do Power BI. Parecida com Excel, mas com contexto de filtro poderoso. Ex: <code>Receita LY = CALCULATE([Receita], SAMEPERIODLASTYEAR(dCalendario[Data]))</code></div>
+
+        <p><strong>KPIs essenciais para dashboards:</strong></p>
+        <ul>
+          <li>Receita Total, MoM %, YoY %</li>
+          <li>CAC (Custo de Aquisição de Cliente)</li>
+          <li>LTV (Lifetime Value)</li>
+          <li>Churn Rate, Retenção</li>
+          <li>NPS, CSAT</li>
+          <li>Margem Bruta, Margem Líquida</li>
+        </ul>
+      `,
+      codeTitle:'Simulando um modelo Star Schema em Python',
+      code:`import pandas as pd
+import numpy as np
+from datetime import date, timedelta
+
+# === STAR SCHEMA: Tabela Fato + Dimensões ===
+
+# dim_cliente
+dim_cliente = pd.DataFrame({
+    'id_cliente': range(1, 6),
+    'nome': ['Ana Silva', 'Bob Martins', 'Carol Lima', 'Diego Souza', 'Eva Costa'],
+    'segmento': ['Enterprise', 'SMB', 'Enterprise', 'SMB', 'Enterprise'],
+    'cidade': ['SP', 'RJ', 'BH', 'SP', 'RS']
+})
+
+# dim_produto
+dim_produto = pd.DataFrame({
+    'id_produto': range(1, 5),
+    'nome': ['Software A', 'Licença B', 'Suporte C', 'Cloud D'],
+    'categoria': ['SaaS', 'License', 'Service', 'Infrastructure'],
+    'preco': [1200, 800, 500, 2000]
+})
+
+# dim_data
+datas = pd.date_range('2024-01-01', '2024-06-30', freq='D')
+dim_data = pd.DataFrame({
+    'data': datas,
+    'ano': datas.year,
+    'mes': datas.month,
+    'trimestre': datas.quarter,
+    'dia_semana': datas.day_name()
+})
+
+# fato_vendas (tabela central)
+np.random.seed(42)
+n = 200
+fato_vendas = pd.DataFrame({
+    'id_venda': range(1, n+1),
+    'data': np.random.choice(datas, n),
+    'id_cliente': np.random.randint(1, 6, n),
+    'id_produto': np.random.randint(1, 5, n),
+    'quantidade': np.random.randint(1, 10, n)
+})
+fato_vendas = fato_vendas.merge(dim_produto[['id_produto','preco']], on='id_produto')
+fato_vendas['receita'] = fato_vendas['preco'] * fato_vendas['quantidade']
+
+# === ANÁLISES (como DAX measures no Power BI) ===
+receita_total = fato_vendas['receita'].sum()
+receita_enterprise = fato_vendas.merge(dim_cliente, on='id_cliente').query(
+    'segmento == "Enterprise"')['receita'].sum()
+
+print(f"Receita Total: R$ {receita_total:,.0f}")
+print(f"Enterprise: R$ {receita_enterprise:,.0f} ({receita_enterprise/receita_total*100:.1f}%)")`,
+      language:'python',
+      exercises:[
+        {
+          q:'No modelo Star Schema, qual é a função da "Tabela Fato"?',
+          opts:['Armazenar informações descritivas como nome do cliente','Armazenar métricas numéricas e eventos (transações, vendas, logs)','Definir relacionamentos entre tabelas','Armazenar configurações do dashboard'],
+          correct:1,
+          exp:'A <strong>Tabela Fato</strong> é o centro do Star Schema e contém as métricas numéricas mensuráveis (vendas, quantidade, receita, eventos). As tabelas Dimensão fornecem o contexto (quem, quando, onde, o quê). A combinação permite analisar métricas por diferentes dimensões.'
+        },
+        {
+          q:'Qual é a principal diferença entre um relatório estático (PDF) e um dashboard de BI?',
+          opts:['Dashboards são mais bonitos','Dashboards são interativos: filtros em tempo real, drill-down, atualização automática','Dashboards só funcionam com dados grandes','Relatórios PDF são mais precisos'],
+          correct:1,
+          exp:'Dashboards de BI são <strong>interativos e dinâmicos</strong>: o usuário pode aplicar filtros, explorar níveis de detalhe (drill-down), cruzar dimensões e visualizar dados atualizados. Um PDF estático mostra um snapshot fixo no tempo sem possibilidade de exploração.'
+        }
+      ]
+    }
+  ]
+},
+{
+  id:'m5',title:'Estatística para Análise de Dados',icon:'📐',level:'Intermediário',duration:'~10h',
+  color:'#06b6d4',
+  description:'Estatística descritiva, inferência, correlação, regressão e testes de hipótese.',
+  skills:['Estatística Descritiva','Distribuições','Correlação','Regressão Linear','A/B Testing'],
+  lessons:[
+    {
+      id:'m5l1',title:'Estatística Descritiva: Resumindo Dados',
+      theory:`
+        <p>Estatística descritiva resume e descreve as características principais de um conjunto de dados. É o primeiro passo em qualquer análise.</p>
+
+        <p><strong>Medidas de Tendência Central:</strong></p>
+        <ul>
+          <li><strong>Média</strong> — soma / quantidade. Sensível a outliers.</li>
+          <li><strong>Mediana</strong> — valor central quando ordenado. Robusta a outliers.</li>
+          <li><strong>Moda</strong> — valor mais frequente. Usada para dados categóricos.</li>
+        </ul>
+
+        <p><strong>Medidas de Dispersão:</strong></p>
+        <ul>
+          <li><strong>Variância (σ²)</strong> — média dos quadrados dos desvios</li>
+          <li><strong>Desvio Padrão (σ)</strong> — raiz da variância (mesma unidade dos dados)</li>
+          <li><strong>Amplitude</strong> — max - min</li>
+          <li><strong>IQR (Intervalo Interquartil)</strong> — Q3 - Q1 (robusto a outliers)</li>
+        </ul>
+
+        <p><strong>Distribuição e Formato:</strong></p>
+        <ul>
+          <li><strong>Assimetria (Skewness)</strong> — positiva = cauda à direita; negativa = cauda à esquerda</li>
+          <li><strong>Curtose (Kurtosis)</strong> — "altura" dos picos vs caudas</li>
+          <li><strong>Boxplot</strong> — visualiza Q1, Q2, Q3, bigodes e outliers</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 Média vs Mediana</strong>Salário médio no Brasil soa alto por causa de alguns salários altíssimos que "puxam" a média. A mediana é mais representativa da experiência da maioria. Use mediana para dados com outliers (renda, preços de imóveis, tempo de resposta).</div>
+      `,
+      codeTitle:'Análise estatística completa',
+      code:`import pandas as pd
+import numpy as np
+from scipy import stats
+
+# Dados de salário (com outliers - CEO ganha muito mais)
+salarios = [3500, 4200, 3800, 5100, 4500, 3200, 4800, 3900, 4100, 150000]
+
+# === MEDIDAS DE TENDÊNCIA CENTRAL ===
+media = np.mean(salarios)
+mediana = np.median(salarios)
+moda = stats.mode(salarios)
+
+print(f"Média:   R$ {media:,.0f}")    # distorcida pelo CEO
+print(f"Mediana: R$ {mediana:,.0f}") # mais representativa
+print(f"Moda:    R$ {moda.mode[0]:,.0f}")
+
+# === MEDIDAS DE DISPERSÃO ===
+print(f"\nDesvio Padrão: R$ {np.std(salarios):,.0f}")
+print(f"Variância: {np.var(salarios):,.0f}")
+print(f"IQR: R$ {stats.iqr(salarios):,.0f}")
+
+q1, q2, q3 = np.percentile(salarios, [25, 50, 75])
+print(f"Q1={q1:.0f}, Q2={q2:.0f}, Q3={q3:.0f}")
+
+# === OUTLIERS (regra do IQR) ===
+iqr = q3 - q1
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+outliers = [x for x in salarios if x < lower or x > upper]
+print(f"\nOutliers detectados: {outliers}")
+
+# === FORMA DA DISTRIBUIÇÃO ===
+skewness = stats.skew(salarios)
+kurtosis = stats.kurtosis(salarios)
+print(f"Assimetria: {skewness:.2f}")  # >0 = positiva (cauda direita)
+print(f"Curtose: {kurtosis:.2f}")`,
+      language:'python',
+      exercises:[
+        {
+          q:'Numa distribuição de preços de imóveis com alguns muito caros (outliers), qual medida representa MELHOR o preço "típico"?',
+          opts:['Média aritmética','Mediana','Moda','Variância'],
+          correct:1,
+          exp:'A <strong>mediana</strong> é robusta a outliers (valores extremos). Alguns imóveis de luxo com preços absurdos "puxam" a média para cima, tornando-a não representativa da maioria. A mediana, sendo o valor central ordenado, não é afetada por esses extremos.'
+        },
+        {
+          q:'O que significa uma assimetria (skewness) POSITIVA nos dados de receita?',
+          opts:['A maioria das receitas está acima da média','A distribuição tem cauda à direita: maioria dos valores é baixo, mas há alguns valores muito altos','A distribuição é perfeitamente simétrica','Os dados têm muitos outliers negativos'],
+          correct:1,
+          exp:'Assimetria positiva = cauda longa à direita. A maioria dos valores está concentrada na parte baixa, mas existe uma cauda de valores altos. Típico em receitas, salários, preços de imóveis: a maioria é "normal" mas alguns valores são muito acima da média.'
+        },
+        {
+          q:'Na regra do IQR para detectar outliers, um valor é considerado outlier se:',
+          opts:['For maior que a média + desvio padrão','For menor que Q1 - 1.5×IQR ou maior que Q3 + 1.5×IQR','For 2x maior que a mediana','Não estiver entre o mínimo e máximo esperado'],
+          correct:1,
+          exp:'A regra de Tufte para outliers usa IQR: qualquer valor < Q1 - 1.5×IQR ou > Q3 + 1.5×IQR é considerado outlier. IQR = Q3 - Q1. Esta regra é mais robusta que usar média ± desvio padrão porque Q1/Q3 são resistentes a extremos.'
+        }
+      ]
+    },
+    {
+      id:'m5l2',title:'Correlação, Regressão e A/B Testing',
+      theory:`
+        <p>Depois de descrever os dados, precisamos entender <strong>relações</strong> entre variáveis e tomar <strong>decisões baseadas em evidências</strong>.</p>
+
+        <p><strong>Correlação</strong> — mede a força e direção da relação linear entre variáveis:</p>
+        <ul>
+          <li>+1: correlação perfeita positiva</li>
+          <li>0: sem correlação linear</li>
+          <li>-1: correlação perfeita negativa</li>
+          <li>|r| > 0.7: forte | 0.3-0.7: moderada | < 0.3: fraca</li>
+        </ul>
+
+        <div class="info-box warning"><strong>⚠️ Correlação ≠ Causalidade!</strong>Países com mais TVs por capita têm mais HDI. Mas não é a TV que causa desenvolvimento — ambos são causados por riqueza. SEMPRE questione variáveis de confusão antes de concluir causalidade.</div>
+
+        <p><strong>Regressão Linear</strong> — prevê uma variável contínua baseada em outras.</p>
+        <p><strong>A/B Testing</strong> — experimento controlado para comparar duas versões:</p>
+        <ul>
+          <li>Defina hipótese nula (H0) e alternativa (H1)</li>
+          <li>Determine tamanho amostral (poder estatístico)</li>
+          <li>Execute o experimento com grupos aleatórios</li>
+          <li>Calcule p-valor: se < 0.05, rejeite H0</li>
+          <li>Verifique significância prática (effect size)</li>
+        </ul>
+      `,
+      codeTitle:'Correlação, Regressão e Teste A/B',
+      code:`import pandas as pd
+import numpy as np
+from scipy import stats
+from sklearn.linear_model import LinearRegression
+
+np.random.seed(42)
+n = 100
+
+# Dados: investimento em marketing → receita
+investimento = np.random.uniform(5000, 50000, n)
+ruido = np.random.normal(0, 8000, n)
+receita = 3.5 * investimento + 20000 + ruido
+
+df = pd.DataFrame({'investimento': investimento, 'receita': receita})
+
+# === CORRELAÇÃO ===
+corr = df.corr()['receita']['investimento']
+print(f"Correlação de Pearson: {corr:.3f}")
+
+r, p_value = stats.pearsonr(investimento, receita)
+print(f"r={r:.3f}, p-valor={p_value:.4f}")
+
+# === REGRESSÃO LINEAR ===
+X = investimento.reshape(-1, 1)
+y = receita
+
+modelo = LinearRegression()
+modelo.fit(X, y)
+
+print(f"\nIntercepto: R$ {modelo.intercept_:,.0f}")
+print(f"Coeficiente: {modelo.coef_[0]:.2f}")
+print(f"Para cada R$1 investido → R$ {modelo.coef_[0]:.2f} de receita")
+print(f"R²: {modelo.score(X,y):.3f} ({modelo.score(X,y)*100:.1f}% explicado pelo modelo)")
+
+# === A/B TEST (Teste t) ===
+# Grupo A: landing page atual | Grupo B: nova versão
+grupo_a = np.random.normal(loc=100, scale=20, size=200)  # conversão média 100
+grupo_b = np.random.normal(loc=108, scale=22, size=200)  # nova versão: +8%
+
+t_stat, p_value = stats.ttest_ind(grupo_a, grupo_b)
+print(f"\n=== A/B TEST ===")
+print(f"Média A: {grupo_a.mean():.1f} | Média B: {grupo_b.mean():.1f}")
+print(f"t-statistic: {t_stat:.3f}")
+print(f"p-valor: {p_value:.4f}")
+print("Resultado:", "✅ Diferença significativa (p<0.05)!" if p_value < 0.05 else "❌ Sem evidência suficiente")`,
+      language:'python',
+      exercises:[
+        {
+          q:'Um estudo mostra correlação de +0.85 entre nº de sorvetes vendidos e afogamentos. O que podemos concluir?',
+          opts:['Comer sorvete causa afogamentos','Calor causa ambos: as pessoas comem mais sorvete E vão à praia no verão','Correlação de 0.85 é fraca, não podemos concluir nada','Precisamos de mais dados'],
+          correct:1,
+          exp:'Correlação ≠ Causalidade! O calor (verão) é uma <strong>variável de confusão</strong> que causa ambos os eventos independentemente. Sorvete não causa afogamento. Sempre pergunte: existe uma terceira variável que explica ambas? Este é um exemplo clássico de correlação espúria.'
+        },
+        {
+          q:'Em um teste A/B com p-valor = 0.03, o que podemos afirmar?',
+          opts:['A versão B é 3% melhor','Há apenas 3% de chance que a diferença observada ocorra por acaso (rejeitamos H0)','A versão A é 97% melhor','O experimento falhou'],
+          correct:1,
+          exp:'O p-valor representa a probabilidade de observar o resultado dado que H0 é verdadeira. p=0.03 significa: "se não houvesse diferença real, veríamos essa diferença apenas 3% das vezes por acaso". Como 3% < 5% (α), <strong>rejeitamos H0</strong> e concluímos que a diferença é estatisticamente significativa.'
+        },
+        {
+          q:'O R² (coeficiente de determinação) de 0.75 em uma regressão linear significa:',
+          opts:['O modelo tem 75% de chance de estar correto','75% da variação na variável dependente é explicada pelo modelo','O modelo erra 25% das vezes','A correlação entre X e Y é 0.75'],
+          correct:1,
+          exp:'R² = proporção da variância da variável dependente explicada pelo modelo. R²=0.75 significa que 75% da variação em Y é explicada pelas variáveis X do modelo. Os outros 25% são variação não explicada (ruído, variáveis omitidas). R² está sempre entre 0 e 1.'
+        }
+      ]
+    }
+  ]
+},
+{
+  id:'m6',title:'Automações e ETL',icon:'⚙️',level:'Avançado',duration:'~12h',
+  color:'#f97316',
+  description:'Pipelines ETL, automação Python, APIs, web scraping, agendamento e orquestração.',
+  skills:['ETL','Pipelines','APIs REST','Web Scraping','Airflow','Cron Jobs','Excel Automation'],
+  lessons:[
+    {
+      id:'m6l1',title:'Pipelines ETL: Extract, Transform, Load',
+      theory:`
+        <p>ETL (Extract, Transform, Load) é o processo de coletar dados de fontes diversas, transformá-los e carregá-los em um destino para análise.</p>
+
+        <p><strong>E — Extract (Extração):</strong></p>
+        <ul>
+          <li>Bancos de dados (SQL, NoSQL)</li>
+          <li>APIs REST (JSON)</li>
+          <li>Arquivos (CSV, Excel, Parquet, JSON)</li>
+          <li>Web Scraping</li>
+          <li>Streams em tempo real (Kafka, Kinesis)</li>
+        </ul>
+
+        <p><strong>T — Transform (Transformação):</strong></p>
+        <ul>
+          <li>Limpeza e padronização</li>
+          <li>Enriquecimento (join com outras fontes)</li>
+          <li>Agregações e cálculos</li>
+          <li>Validação de qualidade</li>
+          <li>Reshape (wide → long, pivots)</li>
+        </ul>
+
+        <p><strong>L — Load (Carga):</strong></p>
+        <ul>
+          <li>Data Warehouse (BigQuery, Snowflake, Redshift)</li>
+          <li>Banco de dados relacional</li>
+          <li>Data Lake (S3, GCS)</li>
+          <li>Arquivos processados</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 ELT vs ETL</strong>Cloud moderno usa ELT (Extract, Load, Transform): carrega dados brutos no Data Warehouse e transforma lá com SQL/dbt. BigQuery + dbt é uma stack muito popular. ETL clássico faz transformações antes de carregar (mais controle, mais complexidade).</div>
+
+        <p><strong>Ferramentas populares:</strong></p>
+        <ul>
+          <li><strong>Airflow</strong> — orquestração de workflows (Apache)</li>
+          <li><strong>dbt</strong> — transformações SQL versionadas</li>
+          <li><strong>Fivetran / Airbyte</strong> — conectores pré-construídos</li>
+          <li><strong>Pandas + SQLAlchemy</strong> — ETL em Python puro</li>
+        </ul>
+      `,
+      codeTitle:'Pipeline ETL completo em Python',
+      code:`import pandas as pd
+import sqlite3
+import requests
+import json
+from datetime import datetime
+import logging
+
+# === CONFIGURAÇÃO DE LOGGING ===
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+class ETLPipeline:
+    """Pipeline ETL modular e reutilizável."""
+    
+    def __init__(self, db_path='warehouse.db'):
+        self.db_path = db_path
+        self.conn = sqlite3.connect(db_path)
+    
+    # ─── EXTRACT ───
+    def extract_csv(self, path: str) -> pd.DataFrame:
+        logging.info(f"Extraindo CSV: {path}")
+        try:
+            df = pd.read_csv(path)
+            logging.info(f"  {len(df)} linhas extraídas")
+            return df
+        except Exception as e:
+            logging.error(f"Erro na extração: {e}")
+            raise
+    
+    def extract_api(self, url: str, params: dict = None) -> pd.DataFrame:
+        logging.info(f"Extraindo API: {url}")
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        return pd.DataFrame(response.json())
+    
+    # ─── TRANSFORM ───
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        logging.info("Iniciando transformações...")
+        original_count = len(df)
+        
+        # 1. Remover duplicatas
+        df = df.drop_duplicates()
+        
+        # 2. Padronizar colunas
+        df.columns = df.columns.str.lower().str.replace(' ', '_')
+        
+        # 3. Tratar tipos
+        if 'data' in df.columns:
+            df['data'] = pd.to_datetime(df['data'], errors='coerce')
+        if 'valor' in df.columns:
+            df['valor'] = pd.to_numeric(df['valor'], errors='coerce')
+        
+        # 4. Remover nulos críticos
+        df = df.dropna(subset=[c for c in ['id', 'data', 'valor'] if c in df.columns])
+        
+        # 5. Adicionar metadata
+        df['_processado_em'] = datetime.now()
+        df['_fonte'] = 'etl_pipeline_v1'
+        
+        logging.info(f"  {original_count} → {len(df)} linhas após transform")
+        return df
+    
+    # ─── VALIDATE ───
+    def validate(self, df: pd.DataFrame) -> bool:
+        checks = {
+            'Sem nulos críticos': df['valor'].isnull().sum() == 0 if 'valor' in df.columns else True,
+            'Datas válidas': df['data'].isnull().sum() == 0 if 'data' in df.columns else True,
+            'Valores positivos': (df['valor'] >= 0).all() if 'valor' in df.columns else True,
+        }
+        for check, result in checks.items():
+            status = "✅" if result else "❌"
+            logging.info(f"  {status} {check}")
+        return all(checks.values())
+    
+    # ─── LOAD ───
+    def load(self, df: pd.DataFrame, table: str, if_exists='append'):
+        logging.info(f"Carregando {len(df)} linhas em '{table}'")
+        df.to_sql(table, self.conn, if_exists=if_exists, index=False)
+        logging.info(f"  ✅ Carregamento concluído!")
+
+# === EXECUTANDO O PIPELINE ===
+if __name__ == "__main__":
+    etl = ETLPipeline()
+    # df_raw = etl.extract_csv('vendas.csv')
+    # df_clean = etl.transform(df_raw)
+    # if etl.validate(df_clean):
+    #     etl.load(df_clean, 'fato_vendas')
+    print("Pipeline configurado com sucesso!")`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual a diferença entre ETL e ELT no contexto de Data Warehouses modernos?',
+          opts:['São o mesmo processo com nomes diferentes','ETL transforma antes de carregar; ELT carrega dados brutos e transforma no destino (DW)','ELT é mais antigo que ETL','ETL é só para SQL, ELT é só para Python'],
+          correct:1,
+          exp:'<strong>ETL</strong>: extrai → transforma → carrega (dados já limpos chegam ao DW). <strong>ELT</strong>: extrai → carrega bruto → transforma no DW usando SQL. ELT é preferido em clouds modernas (BigQuery, Snowflake) pois elas têm poder de processamento barato e ferramentas como dbt tornam as transformações versionadas e testáveis.'
+        },
+        {
+          q:'Por que é importante adicionar LOGGING detalhado em um pipeline ETL de produção?',
+          opts:['Para deixar o código mais lento de propósito','Para monitorar execução, debugar falhas, auditar dados e medir performance ao longo do tempo','Logging é opcional e não tem uso prático','Para melhorar a legibilidade do código'],
+          correct:1,
+          exp:'Em produção, pipelines rodam automaticamente sem supervisão. Logging permite: detectar onde falhou, auditar quantos registros foram processados, medir tempo de cada etapa, criar alertas (se o log mostra 0 registros, algo errou). Sem logging, debugar problemas em produção é praticamente impossível.'
+        }
+      ]
+    },
+    {
+      id:'m6l2',title:'APIs, Web Scraping e Automação com Python',
+      theory:`
+        <p>Analistas de dados frequentemente precisam coletar dados de fontes externas: APIs de terceiros, sites sem API, arquivos enviados por email, relatórios recorrentes.</p>
+
+        <p><strong>Consumindo APIs REST:</strong></p>
+        <ul>
+          <li>Use a biblioteca <code>requests</code></li>
+          <li>Autenticação: API Key, OAuth 2.0, Bearer Token</li>
+          <li>Paginação: cursor-based, page-based, offset-based</li>
+          <li>Rate limiting: respeite os limites, use retry com backoff</li>
+          <li>Sempre trate erros HTTP (404, 401, 429, 500)</li>
+        </ul>
+
+        <p><strong>Web Scraping (quando não há API):</strong></p>
+        <ul>
+          <li><strong>BeautifulSoup</strong> — parsing de HTML estático</li>
+          <li><strong>Selenium / Playwright</strong> — sites dinâmicos (JavaScript)</li>
+          <li>Sempre verifique robots.txt antes de fazer scraping</li>
+          <li>Adicione delays para não sobrecarregar o servidor</li>
+        </ul>
+
+        <p><strong>Automação de Excel/Email:</strong></p>
+        <ul>
+          <li><code>openpyxl</code> — criar/editar Excel com formatação</li>
+          <li><code>xlwings</code> — controlar Excel com macros Python</li>
+          <li><code>smtplib</code> / <code>yagmail</code> — enviar emails automáticos</li>
+          <li><code>schedule</code> / <code>APScheduler</code> — agendar tarefas</li>
+        </ul>
+
+        <div class="info-box success"><strong>✅ Automação de Alto Impacto</strong>Automatize o relatório semanal: extrair dados do banco → calcular KPIs → gerar Excel formatado com gráficos → enviar por email. Isso pode economizar horas por semana e é um diferencial enorme no mercado!</div>
+      `,
+      codeTitle:'API, Scraping e Relatório Automático',
+      code:`import requests
+import pandas as pd
+import time
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.chart import BarChart, Reference
+
+# === 1. CONSUMINDO API ===
+def buscar_dados_api(endpoint: str, api_key: str, paginas: int = 3):
+    """Busca dados de API com paginação e retry."""
+    todos_dados = []
+    
+    for pagina in range(1, paginas + 1):
+        for tentativa in range(3):  # retry 3x
+            try:
+                response = requests.get(
+                    endpoint,
+                    params={'page': pagina, 'per_page': 100},
+                    headers={'Authorization': f'Bearer {api_key}'},
+                    timeout=10
+                )
+                response.raise_for_status()
+                dados = response.json()
+                todos_dados.extend(dados.get('items', []))
+                time.sleep(0.5)  # respeitar rate limit
+                break
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 429:  # rate limit
+                    time.sleep(2 ** tentativa)   # exponential backoff
+                    continue
+                raise
+    
+    return pd.DataFrame(todos_dados)
+
+# === 2. GERANDO RELATÓRIO EXCEL PROFISSIONAL ===
+def gerar_relatorio_excel(df: pd.DataFrame, arquivo: str):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Relatório de Vendas"
+    
+    # Título
+    ws['A1'] = 'RELATÓRIO MENSAL DE VENDAS'
+    ws['A1'].font = Font(bold=True, size=14, color='00E5FF')
+    ws.merge_cells('A1:E1')
+    
+    # Cabeçalhos com estilo
+    colunas = df.columns.tolist()
+    for i, col in enumerate(colunas, 1):
+        cell = ws.cell(row=2, column=i, value=col.upper())
+        cell.font = Font(bold=True, color='FFFFFF')
+        cell.fill = PatternFill(start_color='111827', end_color='111827', fill_type='solid')
+        cell.alignment = Alignment(horizontal='center')
+    
+    # Dados
+    for row_idx, row in df.iterrows():
+        for col_idx, value in enumerate(row, 1):
+            ws.cell(row=row_idx + 3, column=col_idx, value=value)
+    
+    # Largura automática
+    for column_cells in ws.columns:
+        length = max(len(str(cell.value or '')) for cell in column_cells) + 3
+        ws.column_dimensions[column_cells[0].column_letter].width = min(length, 40)
+    
+    wb.save(arquivo)
+    return arquivo
+
+# === 3. ENVIANDO EMAIL AUTOMÁTICO ===
+def enviar_relatorio_email(destinatarios: list, arquivo_anexo: str):
+    """Envia relatório por email com anexo."""
+    msg = MIMEMultipart()
+    msg['Subject'] = f'📊 Relatório Automático - {pd.Timestamp.now().strftime("%d/%m/%Y")}'
+    msg['From'] = 'relatorio@empresa.com'
+    msg['To'] = ', '.join(destinatarios)
+    
+    # Anexar arquivo
+    with open(arquivo_anexo, 'rb') as f:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(f.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', f'attachment; filename={arquivo_anexo}')
+    msg.attach(part)
+    
+    # Enviar (configurar SMTP real em produção)
+    # with smtplib.SMTP('smtp.gmail.com', 587) as server:
+    #     server.starttls()
+    #     server.login(user, password)
+    #     server.send_message(msg)
+    
+    print(f"✅ Email enviado para: {destinatarios}")
+
+print("Scripts de automação prontos!")`,
+      language:'python',
+      exercises:[
+        {
+          q:'Ao fazer chamadas a uma API com limite de requisições (rate limiting), qual estratégia é recomendada quando recebe erro 429?',
+          opts:['Parar permanentemente e reportar erro','Tentar novamente imediatamente em loop infinito','Aguardar com backoff exponencial (1s, 2s, 4s...) antes de retry','Ignorar o erro e continuar'],
+          correct:2,
+          exp:'<strong>Exponential backoff</strong>: aguardar progressivamente mais tempo entre tentativas (1s, 2s, 4s, 8s...). Retry imediato geraria mais requisições e pioraria o problema. O backoff exponencial é o padrão da indústria para lidar com rate limiting e falhas temporárias de API.'
+        },
+        {
+          q:'Para automatizar um relatório semanal Excel, qual biblioteca Python é mais adequada para criar o arquivo com formatação?',
+          opts:['pandas.to_excel() apenas','openpyxl ou xlsxwriter (permitem formatação, gráficos, estilos)','csv.writer','json.dump'],
+          correct:1,
+          exp:'<code>pandas.to_excel()</code> gera Excel básico sem formatação. <strong>openpyxl</strong> (leitura/escrita completa) e <strong>xlsxwriter</strong> (escrita com formatação rica) permitem fontes, cores, fórmulas, gráficos embutidos e outros recursos essenciais para relatórios profissionais.'
+        }
+      ]
+    }
+  ]
+},
+{
+  id:'m7',title:'Projetos Reais & Portfólio',icon:'🚀',level:'Avançado',duration:'~16h',
+  color:'#ec4899',
+  description:'Análises completas do início ao fim, construção de portfólio e preparação para o mercado.',
+  skills:['EDA Completo','Storytelling','GitHub','Portfolio','Entrevistas','Case Studies'],
+  lessons:[
+    {
+      id:'m7l1',title:'Análise Exploratória de Dados (EDA) Completa',
+      theory:`
+        <p>EDA (Exploratory Data Analysis) é o processo de investigar um dataset para descobrir padrões, anomalias, testar hipóteses e verificar suposições. É onde a "mágica" da análise acontece.</p>
+
+        <p><strong>Framework EDA em 6 etapas:</strong></p>
+        <ol>
+          <li><strong>Entender o problema</strong> — qual pergunta você está respondendo?</li>
+          <li><strong>Conhecer o dataset</strong> — shape, dtypes, describe(), isnull()</li>
+          <li><strong>Análise univariada</strong> — distribuição de cada variável individualmente</li>
+          <li><strong>Análise bivariada</strong> — relação entre pares de variáveis</li>
+          <li><strong>Análise multivariada</strong> — correlações, clustering visual</li>
+          <li><strong>Hipóteses e conclusões</strong> — insights acionáveis</li>
+        </ol>
+
+        <p><strong>Perguntas guia durante EDA:</strong></p>
+        <ul>
+          <li>Quais variáveis têm maior variância?</li>
+          <li>Há padrões temporais (sazonalidade, tendência)?</li>
+          <li>Existem segmentos naturais nos dados?</li>
+          <li>Quais variáveis estão correlacionadas?</li>
+          <li>Há outliers? São erros ou casos especiais?</li>
+          <li>Os dados estão balanceados? (categorias)</li>
+        </ul>
+
+        <div class="info-box"><strong>💡 Jupyter Notebook</strong>EDA é feito tipicamente em Jupyter Notebook (.ipynb). Permite intercalar código, visualizações e texto (Markdown). GitHub renderiza notebooks automaticamente — ideal para portfólio!</div>
+
+        <p><strong>Ferramentas de EDA automático:</strong></p>
+        <ul>
+          <li><code>pandas-profiling</code> / <code>ydata-profiling</code> — relatório completo em 1 linha</li>
+          <li><code>sweetviz</code> — comparação entre datasets</li>
+          <li><code>dtale</code> — UI interativa para exploração</li>
+        </ul>
+      `,
+      codeTitle:'EDA Completo - Template Profissional',
+      code:`import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import warnings
+warnings.filterwarnings('ignore')
+
+def eda_completo(df: pd.DataFrame, target: str = None):
+    """Template de EDA completo e automatizado."""
+    
+    print("=" * 60)
+    print("📊 ANÁLISE EXPLORATÓRIA DE DADOS - RELATÓRIO")
+    print("=" * 60)
+    
+    # ── 1. VISÃO GERAL ──
+    print(f"\n📐 DIMENSÕES: {df.shape[0]:,} linhas × {df.shape[1]} colunas")
+    print(f"💾 MEMÓRIA: {df.memory_usage(deep=True).sum()/1024**2:.2f} MB")
+    
+    # ── 2. TIPOS E NULOS ──
+    print("\n📋 COLUNAS E TIPOS:")
+    info = pd.DataFrame({
+        'Tipo': df.dtypes,
+        'Nulos': df.isnull().sum(),
+        '% Nulos': (df.isnull().sum()/len(df)*100).round(1),
+        'Únicos': df.nunique()
+    })
+    print(info.to_string())
+    
+    # ── 3. ESTATÍSTICAS DESCRITIVAS ──
+    print("\n📈 ESTATÍSTICAS NUMÉRICAS:")
+    print(df.describe().round(2).to_string())
+    
+    # ── 4. VARIÁVEIS CATEGÓRICAS ──
+    cat_cols = df.select_dtypes(include=['object', 'category']).columns
+    if len(cat_cols) > 0:
+        print("\n🏷️ TOP VALORES CATEGÓRICOS:")
+        for col in cat_cols[:5]:
+            vc = df[col].value_counts().head(5)
+            print(f"\n  {col}:")
+            for val, cnt in vc.items():
+                print(f"    {val}: {cnt:,} ({cnt/len(df)*100:.1f}%)")
+    
+    # ── 5. CORRELAÇÕES ──
+    num_cols = df.select_dtypes(include=[np.number]).columns
+    if len(num_cols) > 1:
+        corr_matrix = df[num_cols].corr()
+        print("\n🔗 CORRELAÇÕES FORTES (|r| > 0.5):")
+        for i in range(len(num_cols)):
+            for j in range(i+1, len(num_cols)):
+                r = corr_matrix.iloc[i, j]
+                if abs(r) > 0.5:
+                    print(f"  {num_cols[i]} ↔ {num_cols[j]}: {r:.3f}")
+    
+    # ── 6. OUTLIERS ──
+    print("\n⚠️ OUTLIERS (IQR method):")
+    for col in num_cols:
+        Q1, Q3 = df[col].quantile([0.25, 0.75])
+        IQR = Q3 - Q1
+        outliers = ((df[col] < Q1 - 1.5*IQR) | (df[col] > Q3 + 1.5*IQR)).sum()
+        if outliers > 0:
+            print(f"  {col}: {outliers} outliers ({outliers/len(df)*100:.1f}%)")
+    
+    print("\n✅ EDA concluído!")
+
+# Exemplo com dataset simulado
+np.random.seed(42)
+df_exemplo = pd.DataFrame({
+    'receita': np.random.lognormal(10, 1, 1000),
+    'clientes': np.random.randint(1, 500, 1000),
+    'categoria': np.random.choice(['A', 'B', 'C'], 1000),
+    'regiao': np.random.choice(['Sul', 'Norte', 'Centro'], 1000),
+})
+df_exemplo.iloc[5, 0] = 999999  # outlier artificial
+
+eda_completo(df_exemplo)`,
+      language:'python',
+      exercises:[
+        {
+          q:'Qual é o primeiro passo em qualquer EDA?',
+          opts:['Criar gráficos coloridos','Entender o problema de negócio e as perguntas que precisam ser respondidas','Remover todos os outliers','Calcular médias e desvios padrão'],
+          correct:1,
+          exp:'EDA sem contexto gera "análise pelo amor da análise". O primeiro passo é entender: qual decisão será tomada com esses dados? Quais perguntas precisam ser respondidas? Qual é o stakeholder e o que ele precisa saber? Com isso, toda a análise tem direção e propósito.'
+        },
+        {
+          q:'Por que usar ydata-profiling (pandas-profiling) não substitui uma EDA manual?',
+          opts:['A ferramenta é lenta demais','Gera relatório automatizado que não incorpora contexto do negócio, hipóteses específicas e interpretações qualitativas','A ferramenta tem muitos bugs','Só funciona com datasets pequenos'],
+          correct:1,
+          exp:'Ferramentas automáticas são ótimas para uma <em>visão geral inicial</em>, mas não entendem o contexto do negócio. Uma EDA manual guiada por hipóteses específicas, com domain knowledge, é muito mais valiosa. Use o profiling para economizar tempo na fase inicial, depois aprofunde onde realmente importa.'
+        }
+      ]
+    },
+    {
+      id:'m7l2',title:'Construindo seu Portfólio no GitHub',
+      theory:`
+        <p>Um portfólio forte é o que diferencia candidatos em processos seletivos. Para analistas de dados, GitHub + projetos documentados é o portfólio padrão do mercado.</p>
+
+        <p><strong>O que inclui um portfólio forte:</strong></p>
+        <ul>
+          <li>3-5 projetos completos (EDA + insights + visualizações)</li>
+          <li>Notebooks Jupyter bem documentados (Markdown entre os códigos)</li>
+          <li>README.md com contexto, metodologia e conclusões</li>
+          <li>Variedade: diferentes domínios (vendas, saúde, finanças, etc.)</li>
+          <li>Diferentes técnicas: SQL, Python, visualização, ML básico</li>
+        </ul>
+
+        <p><strong>Estrutura ideal de repositório:</strong></p>
+        <pre>
+projeto-analise-vendas/
+├── README.md          ← contexto + resultados principais
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_limpeza.ipynb  
+│   └── 03_insights.ipynb
+├── data/
+│   ├── raw/           ← dados originais (não modificar)
+│   └── processed/     ← dados transformados
+├── src/               ← funções reutilizáveis
+│   └── utils.py
+└── reports/
+    └── dashboard.pdf  ← apresentação final
+        </pre>
+
+        <p><strong>Ideias de projetos com datasets públicos:</strong></p>
+        <ul>
+          <li>Análise de vendas do Olist (e-commerce brasileiro)</li>
+          <li>Dados de voos da ANAC (atrasos, cancelamentos)</li>
+          <li>Dados do IBGE (censo, inflação, PIB)</li>
+          <li>COVID-19 por município</li>
+          <li>Dados do Kaggle (vendas de supermarket, etc.)</li>
+        </ul>
+
+        <div class="info-box success"><strong>✅ Dica de Ouro</strong>O README é a primeira coisa que o recrutador vê. Comece com: problema de negócio → dados usados → principais insights → ferramentas. Adicione GIFs ou screenshots dos gráficos. Um README bem feito é mais importante que o código perfeito!</div>
+
+        <p><strong>Checklist de preparação para entrevistas:</strong></p>
+        <ul>
+          <li>Saiba explicar CADA projeto em 2 minutos (contexto, metodologia, resultado)</li>
+          <li>Prepare para perguntas de SQL (window functions, otimização)</li>
+          <li>Cases de negócio: "como você analisaria X?"</li>
+          <li>Conheça métricas do setor da empresa</li>
+          <li>Prepare perguntas inteligentes sobre o time e dados</li>
+        </ul>
+      `,
+      codeTitle:'Template README.md para portfólio',
+      code:`# 📊 Análise de Churn em E-commerce — Case Study
+
+## 🎯 Problema de Negócio
+Uma empresa de e-commerce observou queda de 15% na retenção de clientes
+nos últimos 6 meses. Este projeto investiga os principais fatores associados
+ao churn e propõe ações baseadas em dados.
+
+## 📈 Principais Insights
+- **67%** dos clientes que churnaram tiveram pelo menos 1 reclamação não resolvida
+- Clientes com ticket médio < R$150 têm **3x mais** probabilidade de churn  
+- **Sazonalidade:** pico de churn em março (pós-Natal), queda em julho
+- Segmento "Novos Clientes" (< 90 dias) representa 42% do churn total
+
+## 🛠️ Ferramentas & Tecnologias
+![Python](badge) ![SQL](badge) ![Pandas](badge) ![Seaborn](badge)
+
+## 📁 Estrutura do Projeto
+projeto-churn/
+├── notebooks/
+│   ├── 01_eda.ipynb         # Análise exploratória inicial
+│   ├── 02_cohorts.ipynb     # Análise de cohorts de clientes
+│   └── 03_dashboard.ipynb   # Visualizações finais
+├── data/ (não incluído por privacidade)
+└── reports/
+    └── apresentacao_final.pdf
+
+## 🔍 Metodologia
+1. Coleta e limpeza de 2 anos de dados transacionais (180k registros)
+2. Definição de churn: sem compra nos últimos 90 dias
+3. Análise de cohorts mensais para identificar padrões
+4. Segmentação RFM (Recência, Frequência, Valor Monetário)
+5. Análise de correlação entre variáveis e churn
+
+## 📊 Principais Visualizações
+[Screenshot do dashboard aqui]
+
+## 💡 Recomendações de Negócio
+1. Programa de win-back para clientes inativos 60-90 dias
+2. SLA máximo de 48h para resolução de reclamações
+3. Cashback para clientes do segmento de baixo ticket médio
+4. Onboarding estruturado para novos clientes (primeiros 90 dias)
+
+## 📬 Contato
+LinkedIn: linkedin.com/in/seuperfil  
+Email: seuemail@gmail.com`,
+      language:'markdown',
+      exercises:[
+        {
+          q:'Quantos projetos são recomendados para um portfólio de analista de dados iniciante?',
+          opts:['1 projeto muito complexo','20+ projetos variados','3 a 5 projetos bem documentados com diferentes domínios e técnicas','10 projetos simples'],
+          correct:1,
+          exp:'Qualidade supera quantidade. <strong>3 a 5 projetos</strong> bem documentados, com README excelente, diferentes domínios e técnicas variadas é muito mais impactante que 20 projetos rasos. O recrutador quer ver: você entendeu o problema? comunicou os insights? usou as ferramentas adequadas?'
+        },
+        {
+          q:'Qual é o elemento MAIS importante de um projeto de portfólio para um recrutador?',
+          opts:['Código Python sem nenhum bug','README bem estruturado com problema de negócio, metodologia e insights','Gráficos 3D coloridos','Uso das bibliotecas mais avançadas disponíveis'],
+          correct:1,
+          exp:'O README é o "cartão de visita" do projeto. O recrutador vê o README primeiro — se não ficar claro qual problema foi resolvido e qual valor foi gerado, o código jamais será lido. Um README excelente comunica: problema → dados → metodologia → insights → recomendações. Isso demonstra maturidade como analista.'
+        }
+      ]
+    }
+  ]
+}
+];
+
+// ═══════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  currentPage: 'home',
+  currentModuleId: null,
+  currentLessonId: null,
+  progress: JSON.parse(localStorage.getItem('dp_progress') || '{}'),
+  xp: parseInt(localStorage.getItem('dp_xp') || '0'),
+  streak: parseInt(localStorage.getItem('dp_streak') || '0'),
+  lastVisit: localStorage.getItem('dp_last') || null
+};
+
+function saveState() {
+  localStorage.setItem('dp_progress', JSON.stringify(state.progress));
+  localStorage.setItem('dp_xp', state.xp);
+  localStorage.setItem('dp_streak', state.streak);
+  localStorage.setItem('dp_last', new Date().toDateString());
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROGRESS HELPERS
+// ═══════════════════════════════════════════════════════
+function isLessonDone(lessonId) { return !!state.progress[lessonId]; }
+function markLessonDone(lessonId) {
+  if (!state.progress[lessonId]) {
+    state.progress[lessonId] = true;
+    state.xp += 100;
+    saveState();
+    updateStats();
+  }
+}
+function getModuleProgress(module) {
+  const done = module.lessons.filter(l => isLessonDone(l.id)).length;
+  return { done, total: module.lessons.length, pct: Math.round(done/module.lessons.length*100) };
+}
+function getTotalDone() {
+  return Object.keys(state.progress).filter(k => state.progress[k]).length;
+}
+function getTotalLessons() {
+  return CURRICULUM.reduce((a, m) => a + m.lessons.length, 0);
+}
+function getXPLevel() {
+  const levels = [0,500,1200,2500,4500,7500];
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (state.xp >= levels[i]) return { level: i+1, min: levels[i], max: levels[i+1] || levels[i]+2500 };
+  }
+  return { level: 1, min: 0, max: 500 };
+}
+
+// ═══════════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════════
+function updateStats() {
+  const lv = getXPLevel();
+  document.getElementById('xp-level').textContent = `Nível ${lv.level}`;
+  document.getElementById('xp-val').textContent = `${state.xp} XP`;
+  const pct = ((state.xp - lv.min) / (lv.max - lv.min)) * 100;
+  document.getElementById('xp-bar').style.width = Math.min(pct, 100) + '%';
+  document.getElementById('xp-stat').textContent = state.xp;
+  document.getElementById('done-val').textContent = getTotalDone();
+  document.getElementById('streak-val').textContent = state.streak;
+}
+
+function buildSidebar() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  CURRICULUM.forEach(module => {
+    const prog = getModuleProgress(module);
+    const div = document.createElement('div');
+    div.className = 'module-nav-item';
+    div.innerHTML = `
+      <button class="module-nav-btn ${prog.done === prog.total && prog.total > 0 ? 'complete' : ''}"
+              onclick="toggleModuleNav('lessons-${module.id}', '${module.id}')">
+        <span class="mod-icon">${module.icon}</span>
+        <span>${module.title}</span>
+        <span class="mod-progress">${prog.done}/${prog.total}</span>
+      </button>
+      <div class="lessons-nav" id="lessons-${module.id}">
+        ${module.lessons.map(l => `
+          <button class="lesson-nav-btn ${isLessonDone(l.id)?'done':''}"
+                  onclick="navigateTo('lesson','${module.id}','${l.id}')">
+            ${l.title}
+          </button>
+        `).join('')}
+      </div>
+    `;
+    nav.appendChild(div);
+  });
+}
+
+function toggleModuleNav(navId, moduleId) {
+  const el = document.getElementById(navId);
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.lessons-nav').forEach(e => e.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+function setBreadcrumb(parts) {
+  document.getElementById('breadcrumb').innerHTML = parts.join(' › ');
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function navigateTo(page, moduleId = null, lessonId = null) {
+  state.currentPage = page;
+  state.currentModuleId = moduleId;
+  state.currentLessonId = lessonId;
+  closeSidebar();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render() {
+  const area = document.getElementById('content-area');
+  if (state.currentPage === 'home') {
+    renderHome(area);
+  } else if (state.currentPage === 'lesson') {
+    const module = CURRICULUM.find(m => m.id === state.currentModuleId);
+    const lesson = module?.lessons.find(l => l.id === state.currentLessonId);
+    if (module && lesson) renderLesson(area, module, lesson);
+  } else if (state.currentPage === 'progress') {
+    renderProgress(area);
+  } else if (state.currentPage === 'cheatsheet') {
+    renderCheatsheet(area);
+  }
+  buildSidebar();
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER HOME
+// ═══════════════════════════════════════════════════════
+function renderHome(area) {
+  setBreadcrumb(['🏠 Início']);
+  const totalDone = getTotalDone();
+  const totalLessons = getTotalLessons();
+  const overallPct = Math.round(totalDone/totalLessons*100);
+  
+  area.innerHTML = `
+    <div class="home-header">
+      <div class="home-title">Trilha <span>Analista de Dados</span></div>
+      <div class="home-subtitle">Do básico ao avançado • ${totalLessons} lições • SQL, Python, BI, Estatística, ETL</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div class="xp-label" style="margin-bottom:8px">
+            <span>Progresso Geral</span><span style="color:var(--accent);font-weight:700">${overallPct}%</span>
+          </div>
+          <div class="xp-bar" style="height:10px"><div class="xp-fill" style="width:${overallPct}%"></div></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">${totalDone} de ${totalLessons} lições concluídas</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="nav-btn primary" onclick="navigateTo('progress')">📈 Meu Progresso</button>
+          <button class="nav-btn" onclick="navigateTo('cheatsheet')">📋 Cheatsheet</button>
+        </div>
+      </div>
+    </div>
+    <div class="modules-grid" id="modules-grid"></div>
+  `;
+  
+  const grid = document.getElementById('modules-grid');
+  CURRICULUM.forEach(module => {
+    const prog = getModuleProgress(module);
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.style.setProperty('--module-color', module.color);
+    card.onclick = () => navigateTo('lesson', module.id, module.lessons[0].id);
+    card.innerHTML = `
+      <div class="module-card-icon">${module.icon}</div>
+      <div class="module-card-title">${module.title}</div>
+      <div class="module-card-desc">${module.description}</div>
+      <div class="module-card-meta">
+        <span class="level-badge">${module.level}</span>
+        <span>⏱ ${module.duration}</span>
+      </div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px">
+        ${module.skills.slice(0,3).map(s => `<span class="tag skill">${s}</span>`).join('')}
+      </div>
+      <div class="module-card-progress">
+        <div class="mini-bar"><div class="mini-fill" style="width:${prog.pct}%;background:${module.color}"></div></div>
+        <div class="progress-pct">${prog.done}/${prog.total} lições • ${prog.pct}%</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER LESSON
+// ═══════════════════════════════════════════════════════
+function renderLesson(area, module, lesson) {
+  setBreadcrumb([
+    `<span onclick="navigateTo('home')" style="cursor:pointer">🏠</span>`,
+    `<span onclick="navigateTo('lesson','${module.id}','${module.lessons[0].id}')" style="cursor:pointer">${module.title}</span>`,
+    `<strong>${lesson.title}</strong>`
+  ]);
+  
+  const lessonIdx = module.lessons.findIndex(l => l.id === lesson.id);
+  const prevLesson = lessonIdx > 0 ? module.lessons[lessonIdx - 1] : null;
+  const nextLesson = lessonIdx < module.lessons.length - 1 ? module.lessons[lessonIdx + 1] : null;
+  const done = isLessonDone(lesson.id);
+  
+  const playgroundHtml = lesson.hasPlayground ? buildPlayground(module.id, lesson.id) : '';
+  
+  area.innerHTML = `
+    <div class="lesson-header">
+      <div class="module-tag" style="border-color:${module.color};color:${module.color}">
+        ${module.icon} ${module.title}
+      </div>
+      <div class="lesson-title">${lesson.title}</div>
+      <div class="lesson-meta">
+        <span class="level-badge">${module.level}</span>
+        ${done ? '<span style="color:var(--green);font-weight:700">✓ Concluída</span>' : '<span style="color:var(--muted)">Em andamento</span>'}
+      </div>
+    </div>
+
+    <div class="lesson-body">
+      <div class="lesson-section">
+        <div class="section-title">Teoria</div>
+        ${lesson.theory}
+      </div>
+
+      ${lesson.code ? `
+      <div class="lesson-section">
+        <div class="section-title">Código Prático</div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">${(lesson.language||'python').toUpperCase()}</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-${lesson.language||'python'}">${escHtml(lesson.code)}</code></pre>
+        </div>
+      </div>
+      ` : ''}
+
+      ${playgroundHtml}
+
+      ${lesson.exercises && lesson.exercises.length > 0 ? renderExercises(lesson) : ''}
+
+      <div class="lesson-nav-row">
+        <button class="nav-btn" onclick="${prevLesson ? `navigateTo('lesson','${module.id}','${prevLesson.id}')` : `navigateTo('home')`}">
+          ← ${prevLesson ? 'Lição Anterior' : 'Voltar ao Início'}
+        </button>
+        <button class="nav-btn primary" onclick="completeLessonAndContinue('${module.id}','${lesson.id}','${nextLesson?.id||''}')">
+          ${done ? (nextLesson ? 'Próxima Lição →' : '🏁 Módulo Concluído!') : '✓ Concluir e Continuar →'}
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Highlight code
+  document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+}
+
+function renderExercises(lesson) {
+  const exercises = lesson.exercises;
+  let html = `
+    <div class="exercises-section">
+      <div class="ex-header">Pratique o que aprendeu</div>
+  `;
+  
+  exercises.forEach((ex, idx) => {
+    const letters = ['A', 'B', 'C', 'D'];
+    html += `
+      <div class="exercise-card" id="ex-${lesson.id}-${idx}">
+        <div class="ex-num">Questão ${idx+1} de ${exercises.length}</div>
+        <div class="ex-question">${ex.q}</div>
+        ${ex.code ? `<div class="ex-code">${escHtml(ex.code)}</div>` : ''}
+        <div class="options-grid">
+          ${ex.opts.map((opt, i) => `
+            <button class="option-btn" 
+                    onclick="answerEx('${lesson.id}',${idx},${i},${ex.correct})"
+                    id="ex-opt-${lesson.id}-${idx}-${i}">
+              <span class="opt-letter">${letters[i]}</span>
+              ${opt}
+            </button>
+          `).join('')}
+        </div>
+        <div class="ex-feedback" id="ex-fb-${lesson.id}-${idx}"></div>
+      </div>
+    `;
+  });
+  
+  html += `</div>`;
+  return html;
+}
+
+function answerEx(lessonId, exIdx, selected, correct) {
+  const opts = document.querySelectorAll(`[id^="ex-opt-${lessonId}-${exIdx}-"]`);
+  opts.forEach(btn => btn.disabled = true);
+  
+  opts[selected].classList.add(selected === correct ? 'correct' : 'incorrect');
+  if (selected !== correct) opts[correct].classList.add('correct');
+  
+  const lesson = CURRICULUM.flatMap(m => m.lessons).find(l => l.id === lessonId);
+  const ex = lesson?.exercises[exIdx];
+  
+  const fb = document.getElementById(`ex-fb-${lessonId}-${exIdx}`);
+  fb.classList.add('show');
+  if (selected === correct) {
+    fb.className = 'ex-feedback show correct-fb';
+    fb.innerHTML = `<div class="fb-title">✅ Correto!</div>${ex.exp}`;
+    state.xp += 20;
+    updateStats();
+    saveState();
+  } else {
+    fb.className = 'ex-feedback show incorrect-fb';
+    fb.innerHTML = `<div class="fb-title">❌ Incorreto</div>${ex.exp}`;
+  }
+}
+
+function completeLessonAndContinue(moduleId, lessonId, nextLessonId) {
+  markLessonDone(lessonId);
+  buildSidebar();
+  if (nextLessonId) {
+    navigateTo('lesson', moduleId, nextLessonId);
+  } else {
+    // Check if there's a next module
+    const moduleIdx = CURRICULUM.findIndex(m => m.id === moduleId);
+    const nextModule = CURRICULUM[moduleIdx + 1];
+    if (nextModule) {
+      navigateTo('lesson', nextModule.id, nextModule.lessons[0].id);
+    } else {
+      navigateTo('home');
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SQL PLAYGROUND
+// ═══════════════════════════════════════════════════════
+let sqlDB = null;
+let sqlLoaded = false;
+
+function buildPlayground(moduleId, lessonId) {
+  const defaultQueries = {
+    'm3l1': 'SELECT produto, categoria, valor, quantidade\nFROM vendas\nWHERE categoria = "Tech"\nORDER BY valor DESC\nLIMIT 5;',
+    'm3l2': 'SELECT v.produto, c.nome AS cliente, v.valor\nFROM vendas v\nINNER JOIN clientes c ON v.id_cliente = c.id\nORDER BY v.valor DESC;',
+    'm3l3': 'SELECT categoria,\n  COUNT(*) AS qtd,\n  ROUND(AVG(valor), 2) AS ticket_medio,\n  SUM(valor) AS receita_total\nFROM vendas\nGROUP BY categoria\nORDER BY receita_total DESC;',
+    'm3l4': `WITH top_clientes AS (\n  SELECT id_cliente, SUM(valor) AS total\n  FROM vendas GROUP BY id_cliente\n)\nSELECT c.nome, t.total\nFROM top_clientes t\nJOIN clientes c ON t.id_cliente = c.id\nORDER BY total DESC LIMIT 5;`,
+    'm3l5': 'SELECT produto, categoria, valor,\n  SUM(valor) OVER (PARTITION BY categoria) AS total_categoria,\n  ROUND(valor * 100.0 / SUM(valor) OVER (PARTITION BY categoria), 1) AS pct_cat,\n  ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY valor DESC) AS rank_cat\nFROM vendas\nORDER BY categoria, rank_cat;'
+  };
+  
+  const key = moduleId + lessonId.replace(moduleId, '');
+  const query = defaultQueries[lessonId] || defaultQueries[moduleId + lessonId] || 'SELECT * FROM vendas LIMIT 10;';
+  
+  return `
+    <div class="lesson-section">
+      <div class="section-title">SQL Playground Interativo</div>
+      <div class="sql-playground">
+        <div class="sql-tabs">
+          <button class="sql-tab active" onclick="switchTab(this,'tab-query-${lessonId}')">Editor SQL</button>
+          <button class="sql-tab" onclick="switchTab(this,'tab-schema-${lessonId}')">Schema do Banco</button>
+          <button class="sql-tab" onclick="switchTab(this,'tab-tips-${lessonId}')">Dicas</button>
+        </div>
+        <div id="tab-query-${lessonId}" class="sql-tab-panel active">
+          <textarea class="sql-editor" id="sql-editor-${lessonId}" rows="7">${query}</textarea>
+          <button class="sql-run-btn" onclick="runSQL('${lessonId}')">▶ Executar Query</button>
+          <div id="sql-loader-${lessonId}" class="sql-result" style="display:none;padding:14px;color:var(--muted);font-size:13px">Carregando banco de dados... <span class="loading-dots"></span></div>
+          <div id="sql-result-${lessonId}" class="sql-result" style="display:none"></div>
+        </div>
+        <div id="tab-schema-${lessonId}" class="sql-tab-panel">
+          <div style="font-size:13px;line-height:2;font-family:var(--font-mono)">
+            <strong style="color:var(--accent)">vendas</strong> (id INTEGER, data TEXT, produto TEXT, categoria TEXT, valor REAL, quantidade INTEGER, id_cliente INTEGER, regiao TEXT)<br>
+            <strong style="color:var(--accent)">clientes</strong> (id INTEGER, nome TEXT, cidade TEXT, segmento TEXT, email TEXT)<br>
+            <strong style="color:var(--accent)">produtos</strong> (id INTEGER, nome TEXT, categoria TEXT, preco REAL, estoque INTEGER)
+          </div>
+        </div>
+        <div id="tab-tips-${lessonId}" class="sql-tab-panel">
+          <div style="font-size:13px;line-height:2;color:var(--muted2)">
+            💡 Use <code style="color:var(--accent)">SELECT *</code> para ver todas as colunas<br>
+            💡 Sempre use <code style="color:var(--accent)">LIMIT</code> para não sobrecarregar<br>
+            💡 Erros aparecem em vermelho abaixo do editor<br>
+            💡 Use ; no final das queries<br>
+            💡 Funções: COUNT, SUM, AVG, MIN, MAX, ROUND<br>
+            💡 O banco tem ~200 registros de exemplo
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function switchTab(btn, tabId) {
+  const playground = btn.closest('.sql-playground');
+  playground.querySelectorAll('.sql-tab').forEach(t => t.classList.remove('active'));
+  playground.querySelectorAll('.sql-tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+async function initSQL() {
+  if (sqlLoaded) return;
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js';
+    script.onload = async () => {
+      try {
+        const SQL = await initSqlJs({
+          locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+        });
+        sqlDB = new SQL.Database();
+        seedDB();
+        sqlLoaded = true;
+        resolve();
+      } catch(e) { reject(e); }
+    };
+    document.head.appendChild(script);
+  });
+}
+
+function seedDB() {
+  sqlDB.run(`
+    CREATE TABLE IF NOT EXISTS vendas (
+      id INTEGER PRIMARY KEY,
+      data TEXT,
+      produto TEXT,
+      categoria TEXT,
+      valor REAL,
+      quantidade INTEGER,
+      id_cliente INTEGER,
+      regiao TEXT
+    );
+    CREATE TABLE IF NOT EXISTS clientes (
+      id INTEGER PRIMARY KEY,
+      nome TEXT,
+      cidade TEXT,
+      segmento TEXT,
+      email TEXT
+    );
+    CREATE TABLE IF NOT EXISTS produtos (
+      id INTEGER PRIMARY KEY,
+      nome TEXT,
+      categoria TEXT,
+      preco REAL,
+      estoque INTEGER
+    );
+  `);
+  
+  const produtos_data = [
+    ['Notebook Pro', 'Tech', 2499.99, 45],
+    ['Mouse Gamer', 'Periférico', 149.90, 230],
+    ['Teclado Mecânico', 'Periférico', 299.90, 180],
+    ['Monitor 4K', 'Tech', 2799.99, 32],
+    ['Headset USB', 'Áudio', 299.99, 75],
+    ['Webcam HD', 'Periférico', 149.99, 120],
+    ['SSD 1TB', 'Armazenamento', 399.99, 200],
+    ['Hub USB-C', 'Periférico', 89.99, 350],
+  ];
+  
+  const clientes_data = [
+    ['Ana Silva', 'São Paulo', 'Enterprise', 'ana@empresa.com'],
+    ['Bob Martins', 'Rio de Janeiro', 'SMB', 'bob@pme.com'],
+    ['Carol Lima', 'Belo Horizonte', 'Enterprise', 'carol@corp.com'],
+    ['Diego Souza', 'São Paulo', 'SMB', 'diego@startup.com'],
+    ['Eva Costa', 'Porto Alegre', 'Enterprise', 'eva@grande.com'],
+    ['Felipe Neto', 'Recife', 'SMB', 'felipe@me.com'],
+    ['Gabriela Ramos', 'Fortaleza', 'SMB', 'gabi@mail.com'],
+    ['Henrique Lopes', 'Manaus', 'Enterprise', 'henrique@amazon.com'],
+  ];
+  
+  produtos_data.forEach((p, i) => {
+    sqlDB.run('INSERT OR IGNORE INTO produtos VALUES (?,?,?,?,?)', [i+1, ...p]);
+  });
+  clientes_data.forEach((c, i) => {
+    sqlDB.run('INSERT OR IGNORE INTO clientes VALUES (?,?,?,?,?)', [i+1, ...c]);
+  });
+  
+  const datas = ['2024-01-15','2024-01-22','2024-02-03','2024-02-18','2024-03-05',
+                 '2024-03-20','2024-04-02','2024-04-17','2024-05-08','2024-05-25',
+                 '2024-06-10','2024-06-28'];
+  const regioes = ['Sul','Norte','Sudeste','Centro-Oeste','Nordeste'];
+  
+  for (let i = 1; i <= 200; i++) {
+    const prodId = Math.floor(Math.random() * 8) + 1;
+    const clientId = Math.floor(Math.random() * 8) + 1;
+    const prod = produtos_data[prodId - 1];
+    const qtd = Math.floor(Math.random() * 5) + 1;
+    const valor = +(prod[2] * qtd * (0.85 + Math.random() * 0.3)).toFixed(2);
+    const data = datas[Math.floor(Math.random() * datas.length)];
+    const regiao = regioes[Math.floor(Math.random() * regioes.length)];
+    sqlDB.run('INSERT INTO vendas VALUES (?,?,?,?,?,?,?,?)', 
+      [i, data, prod[0], prod[1], valor, qtd, clientId, regiao]);
+  }
+}
+
+async function runSQL(lessonId) {
+  const editor = document.getElementById(`sql-editor-${lessonId}`);
+  const resultEl = document.getElementById(`sql-result-${lessonId}`);
+  const loaderEl = document.getElementById(`sql-loader-${lessonId}`);
+  const query = editor.value.trim();
+  
+  if (!query) return;
+  
+  resultEl.style.display = 'none';
+  loaderEl.style.display = 'block';
+  
+  try {
+    if (!sqlLoaded) await initSQL();
+    loaderEl.style.display = 'none';
+    resultEl.style.display = 'block';
+    
+    const results = sqlDB.exec(query);
+    
+    if (results.length === 0) {
+      resultEl.innerHTML = `<div class="sql-success-msg">✅ Query executada com sucesso! (sem linhas retornadas)</div>`;
+      return;
+    }
+    
+    const { columns, values } = results[0];
+    const maxRows = 50;
+    const shown = values.slice(0, maxRows);
+    
+    let html = `<table>
+      <thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${shown.map(row => `<tr>${row.map(v => `<td>${v === null ? '<em style="color:var(--muted)">NULL</em>' : v}</td>`).join('')}</tr>`).join('')}
+      </tbody>
+    </table>`;
+    
+    if (values.length > maxRows) {
+      html += `<div style="padding:8px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)">
+        Mostrando ${maxRows} de ${values.length} linhas
+      </div>`;
+    } else {
+      html += `<div style="padding:8px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)">
+        ${values.length} linha${values.length !== 1 ? 's' : ''} retornada${values.length !== 1 ? 's' : ''}
+      </div>`;
+    }
+    
+    resultEl.innerHTML = html;
+  } catch (err) {
+    loaderEl.style.display = 'none';
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `<div class="sql-error">❌ Erro SQL: ${escHtml(err.message)}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROGRESS PAGE
+// ═══════════════════════════════════════════════════════
+function renderProgress(area) {
+  setBreadcrumb(['🏠', '📈 Meu Progresso']);
+  const totalDone = getTotalDone();
+  const totalLessons = getTotalLessons();
+  const lv = getXPLevel();
+  
+  area.innerHTML = `
+    <div class="progress-page" style="padding:0">
+      <h2 style="font-size:24px;font-weight:800;margin-bottom:24px">Meu Progresso</h2>
+      <div class="big-stat-grid">
+        <div class="big-stat"><span class="val">${state.xp}</span><div class="lbl">XP Total</div></div>
+        <div class="big-stat"><span class="val" style="color:var(--green)">${totalDone}</span><div class="lbl">Lições Concluídas</div></div>
+        <div class="big-stat"><span class="val" style="color:var(--accent2)">${totalLessons - totalDone}</span><div class="lbl">Lições Restantes</div></div>
+        <div class="big-stat"><span class="val" style="color:var(--accent3)">${lv.level}</span><div class="lbl">Nível Atual</div></div>
+        <div class="big-stat"><span class="val" style="color:var(--red)">${state.streak}</span><div class="lbl">Dias Seguidos</div></div>
+        <div class="big-stat"><span class="val">${Math.round(totalDone/totalLessons*100)}%</span><div class="lbl">Conclusão Geral</div></div>
+      </div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Progresso por Módulo</h3>
+      <div class="module-progress-list">
+        ${CURRICULUM.map(module => {
+          const prog = getModuleProgress(module);
+          return `
+            <div class="module-prog-item" onclick="navigateTo('lesson','${module.id}','${module.lessons[0].id}')" style="cursor:pointer">
+              <div class="module-prog-row">
+                <span class="module-prog-icon">${module.icon}</span>
+                <span class="module-prog-title">${module.title}</span>
+                <span class="module-prog-pct">${prog.pct}%</span>
+              </div>
+              <div class="prog-bar-full">
+                <div class="prog-bar-fill" style="width:${prog.pct}%;background:${module.color}"></div>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:6px">${prog.done} de ${prog.total} lições • ${module.level}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div style="margin-top:24px;text-align:center">
+        <button class="nav-btn" style="color:var(--red)" onclick="if(confirm('Resetar TODO o progresso?')){localStorage.clear();location.reload()}">🗑️ Resetar Progresso</button>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+//  CHEATSHEET PAGE
+// ═══════════════════════════════════════════════════════
+function renderCheatsheet(area) {
+  setBreadcrumb(['🏠', '📋 Cheatsheet']);
+  const sheets = [
+    {
+      title:'🐍 Python — Pandas Essencial',
+      rows:[
+        ['pd.read_csv(path)','Ler CSV'],
+        ['df.shape','(linhas, colunas)'],
+        ['df.dtypes','Tipos de dados'],
+        ['df.isnull().sum()','Contar nulos'],
+        ['df.describe()','Stats descritivas'],
+        ['df[df[col]>val]','Filtrar linhas'],
+        ['df.groupby(col).agg()','Agrupar e agregar'],
+        ['df.merge(df2, on=col)','Juntar DataFrames'],
+        ['df.pivot_table(...)','Tabela dinâmica'],
+        ['df.to_csv(path)','Salvar CSV'],
+      ]
+    },
+    {
+      title:'🗄️ SQL — Fundamentos',
+      rows:[
+        ['SELECT col FROM t','Selecionar colunas'],
+        ['WHERE cond','Filtrar linhas'],
+        ['ORDER BY col DESC','Ordenar'],
+        ['LIMIT n','Limitar resultados'],
+        ['GROUP BY col','Agrupar'],
+        ['HAVING agg > val','Filtrar grupos'],
+        ['COUNT(DISTINCT col)','Valores únicos'],
+        ['COALESCE(col, 0)','Substituir NULL'],
+        ['ROUND(val, 2)','Arredondar'],
+        ['CAST(col AS tipo)','Converter tipo'],
+      ]
+    },
+    {
+      title:'🗄️ SQL — JOINs',
+      rows:[
+        ['INNER JOIN','Apenas matches'],
+        ['LEFT JOIN','Todos da esquerda'],
+        ['RIGHT JOIN','Todos da direita'],
+        ['FULL OUTER JOIN','Todos registros'],
+        ['CROSS JOIN','Produto cartesiano'],
+        ['ON a.id = b.id','Condição de join'],
+        ['WHERE b.id IS NULL','Anti-join (sem match)'],
+        ['t1 JOIN t1 AS t2','Self join'],
+      ]
+    },
+    {
+      title:'🗄️ SQL — Window Functions',
+      rows:[
+        ['ROW_NUMBER()','Numeração única'],
+        ['RANK()','Com empate (pula)'],
+        ['DENSE_RANK()','Com empate (não pula)'],
+        ['NTILE(4)','Dividir em quartis'],
+        ['LAG(col, 1)','Valor linha anterior'],
+        ['LEAD(col, 1)','Valor linha seguinte'],
+        ['SUM() OVER(...)','Soma acumulada'],
+        ['PARTITION BY col','Definir partição'],
+        ['ORDER BY col','Ordenar na janela'],
+      ]
+    },
+    {
+      title:'📊 Tipos de Gráfico',
+      rows:[
+        ['Barras','Comparar categorias'],
+        ['Linha','Evolução temporal'],
+        ['Área','Tendência + volume'],
+        ['Pizza/Donut','Composição (<5 fatias)'],
+        ['Scatter','Correlação XY'],
+        ['Heatmap','Matriz de valores'],
+        ['Histograma','Distribuição'],
+        ['Boxplot','Outliers + quartis'],
+        ['Treemap','Hierarquia + tamanho'],
+        ['Waterfall','Variações acumuladas'],
+      ]
+    },
+    {
+      title:'📐 Estatística Rápida',
+      rows:[
+        ['np.mean(x)','Média'],
+        ['np.median(x)','Mediana'],
+        ['np.std(x)','Desvio padrão'],
+        ['np.percentile(x,75)','3º quartil (Q3)'],
+        ['stats.pearsonr(x,y)','Correlação de Pearson'],
+        ['stats.ttest_ind(a,b)','Teste t (A/B)'],
+        ['p < 0.05','Estatisticamente significativo'],
+        ['R² próximo de 1','Modelo explica bem'],
+        ['IQR = Q3 - Q1','Intervalo interquartil'],
+        ['outlier: <Q1-1.5IQR','Regra do IQR'],
+      ]
+    },
+    {
+      title:'⚙️ Python — Dicas Avançadas',
+      rows:[
+        ['df.apply(lambda x: ...)','Aplicar função'],
+        ['pd.to_datetime(col)','Converter para data'],
+        ['df.str.strip().str.lower()','Limpar string'],
+        ['df.explode(col)','Expandir lista em linhas'],
+        ['pd.cut(col, bins=5)','Criar faixas (binning)'],
+        ['df.sample(frac=0.1)','Amostra aleatória'],
+        ['df.assign(nova=expr)','Criar coluna (encadeável)'],
+        ['df.query("col > 100")','Filtro tipo SQL'],
+        ['df.pipe(func)','Encadear funções'],
+      ]
+    },
+    {
+      title:'🚀 Git & GitHub Essencial',
+      rows:[
+        ['git init','Iniciar repositório'],
+        ['git add .','Adicionar arquivos'],
+        ['git commit -m "msg"','Salvar snapshot'],
+        ['git push origin main','Enviar para GitHub'],
+        ['git pull','Baixar atualizações'],
+        ['git branch nome','Criar branch'],
+        ['git checkout -b feat','Branch + checkout'],
+        ['git merge branch','Mesclar branch'],
+        ['.gitignore','Arquivos ignorados'],
+        ['README.md','Documentação principal'],
+      ]
+    }
+  ];
+  
+  area.innerHTML = `
+    <div>
+      <h2 style="font-size:24px;font-weight:800;margin-bottom:8px">📋 Cheatsheet — Referência Rápida</h2>
+      <p style="color:var(--muted2);margin-bottom:28px">Consulte sempre que precisar. Referências essenciais para o dia a dia do analista.</p>
+      <div class="cheatsheet-grid">
+        ${sheets.map(sheet => `
+          <div class="cs-card">
+            <div class="cs-title">${sheet.title}</div>
+            <table class="cs-table">
+              ${sheet.rows.map(([cmd, desc]) => `
+                <tr>
+                  <td><code>${escHtml(cmd)}</code></td>
+                  <td>${desc}</td>
+                </tr>
+              `).join('')}
+            </table>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════
+function handleSearch(query) {
+  const nav = document.getElementById('nav');
+  if (!query.trim()) { buildSidebar(); return; }
+  
+  const q = query.toLowerCase();
+  nav.innerHTML = '';
+  
+  CURRICULUM.forEach(module => {
+    module.lessons.forEach(lesson => {
+      if (lesson.title.toLowerCase().includes(q) || module.title.toLowerCase().includes(q)) {
+        const btn = document.createElement('button');
+        btn.className = 'lesson-nav-btn' + (isLessonDone(lesson.id) ? ' done' : '');
+        btn.style.cssText = 'width:100%;text-align:left;padding:10px 14px;background:var(--bg3);border-radius:8px;margin-bottom:4px;font-size:12px;border:1px solid var(--border);color:var(--muted2);cursor:pointer';
+        btn.innerHTML = `<span style="color:var(--muted);">${module.icon}</span> ${lesson.title}`;
+        btn.onclick = () => { document.getElementById('search-input').value = ''; navigateTo('lesson', module.id, lesson.id); };
+        nav.appendChild(btn);
+      }
+    });
+  });
+  
+  if (nav.innerHTML === '') nav.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px;text-align:center">Nenhum resultado</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  STREAK TRACKING
+// ═══════════════════════════════════════════════════════
+function checkStreak() {
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (state.lastVisit === yesterday) {
+    state.streak += 1;
+  } else if (state.lastVisit !== today) {
+    state.streak = 1;
+  }
+  state.lastVisit = today;
+  saveState();
+}
+
+// ═══════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSidebar();
+  if (e.ctrlKey && e.key === 'Enter') {
+    // Run SQL if there's an active playground
+    const editors = document.querySelectorAll('.sql-editor');
+    if (editors.length > 0 && document.activeElement.classList.contains('sql-editor')) {
+      const id = document.activeElement.id.replace('sql-editor-', '');
+      runSQL(id);
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+checkStreak();
+updateStats();
+buildSidebar();
+render();
+</script>
+</body>
+</html>
